@@ -6,7 +6,7 @@
           <UIcon name="heroicons:user-plus" size="24" />
         </div>
         <h1 class="text-2xl font-bold text-text">アカウントを作成</h1>
-        <p class="mt-2 text-text-muted">新しい Birdie アカウントを登録します。</p>
+        <p class="mt-2 text-text-muted">新しい Skybird アカウントを登録します。</p>
       </UCardHeader>
 
       <UCardContent class="grid gap-4">

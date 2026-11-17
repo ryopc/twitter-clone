@@ -6,7 +6,7 @@
         <div class="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-text">
           <span class="text-xs font-bold">B</span>
         </div>
-        <span>Birdie</span>
+        <span>Skybird</span>
       </NuxtLink>
 
       <div class="flex items-center gap-4">

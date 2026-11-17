@@ -1,0 +1,96 @@
+{
+  "messages": [
+    {
+      "id": "m1",
+      "conversationId": "c1",
+      "senderId": "u2",
+      "sender": {
+        "id": "u2",
+        "displayName": "山田 タロウ",
+        "username": "taro_dev",
+        "avatar": "https://ui-avatars.com/api/?name=Taro&background=ec4899&color=fff"
+      },
+      "content": "こんにちは！プロジェクトについて相談したいことがあります。",
+      "createdAt": 1794887242133,
+      "read": false
+    },
+    {
+      "id": "m2",
+      "conversationId": "c1",
+      "senderId": "u1",
+      "sender": {
+        "id": "u1",
+        "displayName": "藍井 カイ",
+        "username": "kai_dev",
+        "avatar": "https://ui-avatars.com/api/?name=Kai&background=6366f1&color=fff"
+      },
+      "content": "もちろんです！何でしょうか？",
+      "createdAt": 1794890842133,
+      "read": true
+    },
+    {
+      "id": "m3",
+      "conversationId": "c2",
+      "senderId": "u3",
+      "sender": {
+        "id": "u3",
+        "displayName": "佐藤 花子",
+        "username": "sato_design",
+        "avatar": "https://ui-avatars.com/api/?name=Hana&background=10b981&color=fff"
+      },
+      "content": "デザイン案のフィードバックお願いします。",
+      "createdAt": 1794896242133,
+      "read": false
+    }
+  ],
+  "conversations": [
+    {
+      "id": "c1",
+      "participantIds": [
+        "u1",
+        "u2"
+      ],
+      "participants": [
+        {
+          "id": "u1",
+          "displayName": "藍井 カイ",
+          "username": "kai_dev",
+          "avatar": "https://ui-avatars.com/api/?name=Kai&background=6366f1&color=fff"
+        },
+        {
+          "id": "u2",
+          "displayName": "山田 タロウ",
+          "username": "taro_dev",
+          "avatar": "https://ui-avatars.com/api/?name=Taro&background=ec4899&color=fff"
+        }
+      ],
+      "lastMessage": "もちろんです！何でしょうか？",
+      "lastMessageAt": 1794890842133,
+      "unreadCount": 0
+    },
+    {
+      "id": "c2",
+      "participantIds": [
+        "u1",
+        "u3"
+      ],
+      "participants": [
+        {
+          "id": "u1",
+          "displayName": "藍井 カイ",
+          "username": "kai_dev",
+          "avatar": "https://ui-avatars.com/api/?name=Kai&background=6366f1&color=fff"
+        },
+        {
+          "id": "u3",
+          "displayName": "佐藤 花子",
+          "username": "sato_design",
+          "avatar": "https://ui-avatars.com/api/?name=Hana&background=10b981&color=fff"
+        }
+      ],
+      "lastMessage": "デザイン案のフィードバックお願いします。",
+      "lastMessageAt": 1794896242133,
+      "unreadCount": 1
+    }
+  ]
+}

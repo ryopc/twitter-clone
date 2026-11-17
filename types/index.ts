@@ -35,3 +35,41 @@ export interface FollowStatus {
   followersCount: number
   followingCount: number
 }
+
+export interface Message {
+  id: string
+  conversationId: string
+  senderId: string
+  sender: User
+  content: string
+  createdAt: number
+  read: boolean
+}
+
+export interface Conversation {
+  id: string
+  participantIds: string[]
+  participants: User[]
+  lastMessage: string
+  lastMessageAt: number
+  unreadCount: number
+}
+
+export interface Trend {
+  id: string
+  tag: string
+  tweetCount: number
+  trendingSince: number
+}
+
+export interface Notification {
+  id: string
+  userId: string
+  type: 'like' | 'repost' | 'reply' | 'follow' | 'mention'
+  actorId: string
+  actor: User
+  postId?: string
+  content: string
+  createdAt: number
+  read: boolean
+}

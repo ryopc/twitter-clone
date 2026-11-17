@@ -1,0 +1,67 @@
+{
+  "notifications": [
+    {
+      "id": "n1",
+      "userId": "u1",
+      "type": "like",
+      "actorId": "u2",
+      "actor": {
+        "id": "u2",
+        "displayName": "山田 タロウ",
+        "username": "taro_dev",
+        "avatar": "https://ui-avatars.com/api/?name=Taro&background=ec4899&color=fff"
+      },
+      "postId": "p1",
+      "content": "あなたの投稿にいいねしました",
+      "createdAt": 1794895297719,
+      "read": false
+    },
+    {
+      "id": "n2",
+      "userId": "u1",
+      "type": "repost",
+      "actorId": "u3",
+      "actor": {
+        "id": "u3",
+        "displayName": "佐藤 花子",
+        "username": "sato_design",
+        "avatar": "https://ui-avatars.com/api/?name=Hana&background=10b981&color=fff"
+      },
+      "postId": "p2",
+      "content": "あなたの投稿をリポストしました",
+      "createdAt": 1794887197719,
+      "read": false
+    },
+    {
+      "id": "n3",
+      "userId": "u1",
+      "type": "reply",
+      "actorId": "u2",
+      "actor": {
+        "id": "u2",
+        "displayName": "山田 タロウ",
+        "username": "taro_dev",
+        "avatar": "https://ui-avatars.com/api/?name=Taro&background=ec4899&color=fff"
+      },
+      "postId": "p1",
+      "content": "あなたの投稿に返信しました",
+      "createdAt": 1794879997719,
+      "read": true
+    },
+    {
+      "id": "n4",
+      "userId": "u1",
+      "type": "follow",
+      "actorId": "u3",
+      "actor": {
+        "id": "u3",
+        "displayName": "佐藤 花子",
+        "username": "sato_design",
+        "avatar": "https://ui-avatars.com/api/?name=Hana&background=10b981&color=fff"
+      },
+      "content": "あなたをフォローしました",
+      "createdAt": 1794869197719,
+      "read": false
+    }
+  ]
+}

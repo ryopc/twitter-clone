@@ -5,7 +5,7 @@
         <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand text-text">
           <UIcon name="heroicons:shield-check" size="24" />
         </div>
-        <h1 class="text-2xl font-bold text-text">Birdie へようこそ</h1>
+        <h1 class="text-2xl font-bold text-text">Skybird へようこそ</h1>
         <p class="mt-2 text-text-muted">アカウントにログインして、会話を始めましょう。</p>
       </UCardHeader>
 

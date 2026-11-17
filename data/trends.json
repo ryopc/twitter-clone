@@ -1,0 +1,34 @@
+{
+  "trends": [
+    {
+      "id": "t1",
+      "tag": "Nuxt",
+      "tweetCount": 1250,
+      "trendingSince": 1794890842133
+    },
+    {
+      "id": "t2",
+      "tag": "PWA",
+      "tweetCount": 980,
+      "trendingSince": 1794883642133
+    },
+    {
+      "id": "t3",
+      "tag": "TypeScript",
+      "tweetCount": 850,
+      "trendingSince": 1794876442133
+    },
+    {
+      "id": "t4",
+      "tag": "Vue",
+      "tweetCount": 720,
+      "trendingSince": 1794869242133
+    },
+    {
+      "id": "t5",
+      "tag": "SNS",
+      "tweetCount": 610,
+      "trendingSince": 1794862042133
+    }
+  ]
+}
