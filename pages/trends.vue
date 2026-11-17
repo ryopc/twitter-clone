@@ -1,87 +1,74 @@
 <template>
-  <div class="max-w-screen-lg mx-auto py-6 px-4 sm:px-6 lg:px-8">
-    <nav class="flex items-center justify-between mb-6">
-      <NuxtLink to="/" class="flex items-center gap-2 text-xl font-bold text-brand">
-        <div class="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-text">
-          <span class="text-xs font-bold">S</span>
-        </div>
-        <span>Skybird</span>
+  <div class="max-w-3xl mx-auto py-12 px-6 sm:px-8 lg:px-12 relative z-10">
+    <nav class="flex items-center gap-4 mb-12">
+      <NuxtLink to="/" class="text-text-muted hover:text-text transition-colors font-medium">
+        <UIcon name="heroicons:arrow-left" size="18" />
+        <span class="ml-1">ホームに戻る</span>
       </NuxtLink>
-
-      <div class="flex items-center gap-4">
-        <template v-if="userStore.user">
-          <NuxtLink to="/" class="text-text-muted hover:text-text transition-colors">ホーム</NuxtLink>
-          <UButton label="ログアウト" size="sm" @click="handleLogout" variant="outline" />
-        </template>
-        <template v-else>
-          <NuxtLink to="/login" class="text-brand hover:underline font-medium">ログイン</NuxtLink>
-        </template>
-      </div>
     </nav>
 
-    <h2 class="text-2xl font-bold text-text mb-6">トレンド</h2>
-
-    <div v-if="trendStore.isLoading" class="flex justify-center py-12">
-      <USpinner size="lg" />
+    <div class="section-header mb-10">
+      <h2>トレンド</h2>
     </div>
 
-    <div v-else-if="trendStore.trends.length === 0" class="text-center py-12 text-text-muted">
+    <div v-if="trends.isLoading" class="flex justify-center py-20">
+      <USpinner size="lg" class="text-brand" />
+    </div>
+
+    <div v-else-if="trends.trends.length === 0" class="text-center py-24 text-text-muted">
       トレンドがまだありません。
     </div>
 
-    <div v-else class="space-y-3">
+    <div v-else class="space-y-5">
       <div
-        v-for="(trend, index) in trendStore.trends"
+        v-for="(trend, index) in trends.trends"
         :key="trend.id"
-        class="UCard p-4 flex items-center justify-between"
+        class="card-glass p-6 hover:shadow-xl transition-all group"
       >
-        <div class="flex items-center gap-3">
-          <div
-            class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-brand bg-brand/10"
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div
+              class="w-10 h-10 rounded-2xl flex items-center justify-center text-xl font-black uppercase tracking-widest"
+              :class="index === 0 ? 'bg-brand text-white shadow-lg shadow-brand/40' : index === 1 ? 'bg-accent text-white shadow-lg shadow-accent/40' : 'bg-surface/50 text-text-muted'"
+            >
+              {{ index + 1 }}
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-text">#{{ trend.tag }}</h3>
+              <p class="text-sm text-text-muted">{{ trend.tweetCount.toLocaleString() }} 件のポスト</p>
+            </div>
+          </div>
+          <NuxtLink
+            :to="`/search?q=%23${trend.tag}`"
+            class="text-brand font-medium hover:underline transition-colors text-sm"
           >
-            {{ index + 1 }}
-          </div>
-          <div>
-            <h3 class="text-lg font-bold text-text">#{{ trend.tag }}</h3>
-            <p class="text-sm text-text-muted">{{ trend.tweetCount.toLocaleString() }} 件のポスト</p>
-          </div>
+            詳細を見る
+          </NuxtLink>
         </div>
-        <NuxtLink
-          :to="`/search?q=%23${trend.tag}`"
-          class="text-brand hover:underline font-medium text-sm"
-        >
-          詳細を見る
-        </NuxtLink>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from '~/stores/user'
+
 const userStore = useUserStore()
-const trendStore = useState('trends', () => ({
+const trends = useState('trends', () => ({
   trends: [] as any[],
   isLoading: false,
 }))
 
 const fetchTrends = async () => {
-  trendStore.value.isLoading = true
+  trends.value.isLoading = true
   try {
-    const res = await fetch('/api/trends')
-    if (!res.ok) throw new Error('トレンドの取得に失敗しました')
-    const data = await res.json()
-    trendStore.value.trends = data.trends || []
+    const res = await $fetch<{ trends: any[] }>('/api/trends')
+    trends.value.trends = res.trends || []
   } catch (e) {
     console.error(e)
   } finally {
-    trendStore.value.isLoading = false
+    trends.value.isLoading = false
   }
-}
-
-const handleLogout = async () => {
-  await fetch('/api/auth/logout', { method: 'POST' })
-  userStore.logout()
-  await navigateTo('/login')
 }
 
 fetchTrends()

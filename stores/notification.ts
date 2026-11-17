@@ -9,15 +9,18 @@ export const useNotificationStore = defineStore('notification', () => {
 
   const fetchNotifications = async () => {
     const userStore = useUserStore()
+    if (!userStore.token) {
+      notifications.value = []
+      unreadCount.value = 0
+      return
+    }
     isLoading.value = true
     try {
-      const res = await fetch('/api/notifications', {
+      const data = await $fetch<{ notifications: Notification[]; unreadCount: number }>('/api/notifications', {
         headers: {
           Authorization: `Bearer ${userStore.token}`,
         },
       })
-      if (!res.ok) throw new Error('通知の取得に失敗しました')
-      const data = await res.json()
       notifications.value = data.notifications || []
       unreadCount.value = data.unreadCount || 0
     } catch (e) {
@@ -28,16 +31,15 @@ export const useNotificationStore = defineStore('notification', () => {
   }
 
   const markAsRead = async (notificationId: string) => {
+    const userStore = useUserStore()
     try {
-      const res = await fetch('/api/notifications/read', {
+      await $fetch('/api/notifications/read', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${useUserStore().token}`,
-        },
         body: JSON.stringify({ notificationId }),
+        headers: {
+          Authorization: `Bearer ${userStore.token}`,
+        },
       })
-      if (!res.ok) throw new Error('既読に失敗しました')
 
       const idx = notifications.value.findIndex((n) => n.id === notificationId)
       if (idx !== -1) {

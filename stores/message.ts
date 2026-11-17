@@ -8,15 +8,18 @@ export const useMessageStore = defineStore('message', () => {
   const isLoading = useState('message-loading', () => false)
 
   const fetchConversations = async () => {
+    const userStore = useUserStore()
+    if (!userStore.token) {
+      conversations.value = []
+      return
+    }
     isLoading.value = true
     try {
-      const res = await fetch('/api/messages', {
+      const data = await $fetch<{ conversations: Conversation[] }>('/api/messages', {
         headers: {
-          Authorization: `Bearer ${useUserStore().token}`,
+          Authorization: `Bearer ${userStore.token}`,
         },
       })
-      if (!res.ok) throw new Error('会話一覧の取得に失敗しました')
-      const data = await res.json()
       conversations.value = data.conversations || []
     } catch (e) {
       console.error(e)
@@ -26,15 +29,14 @@ export const useMessageStore = defineStore('message', () => {
   }
 
   const fetchConversation = async (conversationId: string) => {
+    const userStore = useUserStore()
     isLoading.value = true
     try {
-      const res = await fetch(`/api/messages/${conversationId}`, {
+      const data = await $fetch<{ conversation: Conversation; messages: Message[] }>(`/api/messages/${conversationId}`, {
         headers: {
-          Authorization: `Bearer ${useUserStore().token}`,
+          Authorization: `Bearer ${userStore.token}`,
         },
       })
-      if (!res.ok) throw new Error('メッセージの取得に失敗しました')
-      const data = await res.json()
       messages.value = data.messages || []
       return data.conversation
     } catch (e) {
@@ -45,17 +47,15 @@ export const useMessageStore = defineStore('message', () => {
   }
 
   const sendMessage = async (conversationId: string, content: string) => {
+    const userStore = useUserStore()
     try {
-      const res = await fetch(`/api/messages/${conversationId}`, {
+      const data = await $fetch<{ message: Message }>(`/api/messages/${conversationId}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${useUserStore().token}`,
-        },
         body: JSON.stringify({ conversationId, content }),
+        headers: {
+          Authorization: `Bearer ${userStore.token}`,
+        },
       })
-      if (!res.ok) throw new Error('メッセージの送信に失敗しました')
-      const data = await res.json()
       messages.value.push(data.message)
       return data.message
     } catch (e) {

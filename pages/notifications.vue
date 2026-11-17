@@ -1,63 +1,70 @@
 <template>
-  <div class="max-w-screen-lg mx-auto py-6 px-4 sm:px-6 lg:px-8">
-    <nav class="flex items-center justify-between mb-6">
-      <NuxtLink to="/" class="flex items-center gap-2 text-xl font-bold text-brand">
-        <div class="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-text">
-          <span class="text-xs font-bold">S</span>
-        </div>
-        <span>Skybird</span>
+  <div class="max-w-3xl mx-auto py-12 px-6 sm:px-8 relative z-10">
+    <nav class="flex items-center gap-4 mb-12">
+      <NuxtLink to="/" class="text-text-muted hover:text-text transition-colors font-medium">
+        <UIcon name="heroicons:arrow-left" size="18" />
+        <span class="ml-1">ホームに戻る</span>
       </NuxtLink>
-
-      <div class="flex items-center gap-4">
-        <NuxtLink to="/" class="text-text-muted hover:text-text transition-colors">ホーム</NuxtLink>
-        <UButton label="ログアウト" size="sm" @click="handleLogout" variant="outline" />
-      </div>
     </nav>
 
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold text-text">通知</h2>
+    <div class="flex items-center justify-between mb-8">
+      <div class="section-header">
+        <h2>通知</h2>
+      </div>
       <UButton
         v-if="notificationStore.unreadCount > 0"
         label="すべて既読にする"
         size="sm"
         variant="outline"
         @click="markAllRead"
+        class="px-4 py-2 text-sm"
       />
     </div>
 
-    <div v-if="notificationStore.isLoading" class="flex justify-center py-12">
-      <USpinner size="lg" />
+    <div v-if="notificationStore.isLoading" class="flex justify-center py-20">
+      <USpinner size="lg" class="text-brand" />
     </div>
 
     <div
       v-else-if="notificationStore.notifications.length === 0"
-      class="text-center py-12 text-text-muted"
+      class="text-center py-24"
     >
-      通知はありません。
+      <div class="w-16 h-16 rounded-full bg-surface/50 flex items-center justify-center mx-auto mb-6 text-text-muted">
+        <UIcon name="heroicons:bell" size="32" />
+      </div>
+      <h3 class="text-lg font-bold text-text mb-2">通知はありません</h3>
+      <p class="text-text-muted">新しいアクティビティがここに表示されます。</p>
     </div>
 
-    <div v-else class="space-y-3">
+    <div v-else class="space-y-4">
       <div
         v-for="notification in notificationStore.notifications"
         :key="notification.id"
-        class="UCard p-4 flex items-start gap-3"
-        :class="{ 'bg-brand/5': !notification.read }"
+        class="card-glass p-5 hover:bg-surface/50 transition-colors cursor-pointer"
+        :class="{ 'border-l-4 border-brand': !notification.read }"
       >
-        <UAvatar :size="32" :src="notification.actor.avatar" rounded="full" />
-        <div class="flex-1">
-          <div class="flex items-baseline gap-1 text-sm font-semibold text-text">
-            <NuxtLink
-              :to="`/@${notification.actor.username}`"
-              class="hover:text-brand cursor-pointer transition-colors"
-            >{{ notification.actor.displayName }}</NuxtLink>
-            <USpan class="text-text-muted text-xs">{{ relativeTime(notification.createdAt) }}</USpan>
+        <div class="flex items-start gap-4">
+          <UAvatar :size="40" :src="notification.actor.avatar" rounded="full" class="flex-shrink-0" />
+          <div class="flex-1 min-w-0">
+            <div class="flex items-baseline gap-2 mb-2">
+              <NuxtLink
+                :to="`/@${notification.actor.username}`"
+                class="font-bold text-text hover:text-brand transition-colors"
+              >{{ notification.actor.displayName }}</NuxtLink>
+              <span class="text-xs text-text-muted">{{ relativeTime(notification.createdAt) }}</span>
+              <span
+                v-if="!notification.read"
+                class="w-2 h-2 rounded-full bg-brand ml-2 animate-pulse"
+              ></span>
+            </div>
+            <p class="text-text leading-relaxed">{{ notification.content }}</p>
           </div>
-          <p class="mt-1 text-text leading-relaxed">{{ notification.content }}</p>
           <UButton
             v-if="!notification.read"
             size="xs"
             variant="ghost"
             label="既読"
+            class="ml-2 px-3 py-1.5 text-xs"
             @click="notificationStore.markAsRead(notification.id)"
           />
         </div>
@@ -67,6 +74,9 @@
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from '~/stores/user'
+import { useNotificationStore } from '~/stores/notification'
+
 const userStore = useUserStore()
 const notificationStore = useNotificationStore()
 
@@ -86,12 +96,6 @@ const markAllRead = async () => {
   }
 }
 
-const handleLogout = async () => {
-  await fetch('/api/auth/logout', { method: 'POST' })
-  userStore.logout()
-  await navigateTo('/login')
-}
-
-// ページロード時に通知を取得
+// Fetch notifications on load
 notificationStore.fetchNotifications()
 </script>

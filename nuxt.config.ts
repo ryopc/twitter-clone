@@ -5,6 +5,7 @@ export default defineNuxtConfig({
 
   modules: [
     '@nuxt/ui',
+    '@pinia/nuxt',
   ],
 
   typescript: {
@@ -19,8 +20,13 @@ export default defineNuxtConfig({
     },
   },
 
+  imports: {
+    dirs: ['stores', 'composables'],
+  },
+
   app: {
     head: {
+      title: 'Skybird - オープン SNS クライアント',
       link: [
         { rel: 'manifest', href: '/manifest.json' },
       ],

@@ -1,53 +1,96 @@
-<template>
-  <div class="w-full">
-    <UCard class="mx-auto mt-10">
-      <UCardHeader class="text-center">
-        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand text-text">
-          <UIcon name="heroicons:user-plus" size="24" />
-        </div>
-        <h1 class="text-2xl font-bold text-text">アカウントを作成</h1>
-        <p class="mt-2 text-text-muted">新しい Skybird アカウントを登録します。</p>
-      </UCardHeader>
+<script setup lang="ts">
+import { useUserStore } from '~/stores/user'
 
-      <UCardContent class="grid gap-4">
-        <form @submit.prevent="handleRegister" class="grid gap-4">
-          <UInput label="表示名" v-model="displayName" placeholder="藍井 カイ" required />
-          <UInput
-            label="ユーザー名"
-            v-model="username"
-            placeholder="kai_dev"
-            required
-          />
-          <UInput label="メールアドレス" type="email" v-model="email" placeholder="you@example.com" required />
-          <UInput label="パスワード" type="password" v-model="password" placeholder="••••••••" required />
-          <UButton type="submit" label="登録する" color="brand" full-width class="!py-3" :loading="userStore.isLoading" />
-        </form>
-      </UCardContent>
+const route = useRoute()
+const isLogin = route.path === '/login'
 
-      <UCardFooter class="text-center">
-        <p class="text-sm text-text-muted">
-          すでにアカウントをお持ちですか？
-          <NuxtLink to="/login" class="text-brand hover:underline font-medium">ログイン</NuxtLink>
-        </p>
-      </UCardFooter>
-    </UCard>
-  </div>
-</template>
-
-<script setup>
 const userStore = useUserStore()
 
-const displayName = useState('reg-displayName', () => '')
-const username = useState('reg-username', () => '')
-const email = useState('reg-email', () => '')
-const password = useState('reg-password', () => '')
+const displayName = useState('auth-displayName', () => '')
+const username = useState('auth-username', () => '')
+const email = useState('auth-email', () => '')
+const password = useState('auth-password', () => '')
 
-const handleRegister = async () => {
+const handleSubmit = async () => {
   try {
-    await userStore.register({ displayName, username, email, password })
+    if (isLogin) {
+      await userStore.login(email, password)
+    } else {
+      await userStore.register({ displayName, username, email, password })
+    }
     await navigateTo('/')
   } catch (e) {
-    alert(e?.message || '登録に失敗しました')
+    alert(e?.message || '処理に失敗しました')
   }
 }
 </script>
+
+<template>
+  <div class="text-center mb-10">
+    <div class="w-16 h-16 rounded-3xl bg-gradient-brand flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand/40">
+      <UIcon name="heroicons:shield-check" size="32" class="text-white" />
+    </div>
+    <h2 class="text-2xl font-bold text-text">{{ isLogin ? 'ようこそ戻ってきました' : 'アカウントを作成' }}</h2>
+    <p class="text-text-muted mt-2">{{ isLogin ? 'アカウントにログインして、会話を始めましょう。' : '新しい Skybird アカウントを登録します。' }}</p>
+  </div>
+
+  <form @submit.prevent="handleSubmit" class="space-y-5">
+    <template v-if="!isLogin">
+      <div class="space-y-2">
+        <label class="block text-sm font-medium text-text mb-1">表示名</label>
+        <UInput
+          v-model="displayName"
+          placeholder="藍井 カイ"
+          class="input-field"
+          required
+        />
+      </div>
+      <div class="space-y-2">
+        <label class="block text-sm font-medium text-text mb-1">ユーザー名</label>
+        <UInput
+          v-model="username"
+          placeholder="kai_dev"
+          class="input-field"
+          required
+        />
+      </div>
+    </template>
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-text mb-1">メールアドレス</label>
+      <UInput
+        v-model="email"
+        type="email"
+        placeholder="you@example.com"
+        class="input-field"
+        required
+      />
+    </div>
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-text mb-1">パスワード</label>
+      <UInput
+        v-model="password"
+        type="password"
+        placeholder="••••••••"
+        class="input-field"
+        required
+      />
+    </div>
+    <button
+      type="submit"
+      class="w-full btn-brand text-base py-4"
+      :disabled="userStore.isLoading"
+    >
+      {{ isLogin ? 'ログイン' : '登録する' }}
+    </button>
+  </form>
+
+  <p class="mt-8 text-center text-sm text-text-muted">
+    {{ isLogin ? 'アカウントをお持ちでないですか？' : 'すでにアカウントをお持ちですか？' }}
+    <NuxtLink
+      :to="isLogin ? '/register' : '/login'"
+      class="text-brand font-medium hover:underline transition-colors"
+    >
+      {{ isLogin ? '新規登録' : 'ログイン' }}
+    </NuxtLink>
+  </p>
+</template>

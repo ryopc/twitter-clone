@@ -10,10 +10,8 @@ export const usePostsStore = defineStore('posts', () => {
     isLoading.value = true
     error.value = null
     try {
-      const res = await fetch('/api/posts')
-      if (!res.ok) throw new Error('投稿の取得に失敗しました')
-      const data = await res.json()
-      posts.value = data.posts || data
+      const data = await $fetch<{ posts: Post[] }>('/api/posts')
+      posts.value = (data.posts || []).sort((a, b) => b.createdAt - a.createdAt)
     } catch (e) {
       error.value = e instanceof Error ? e.message : '不明なエラー'
     } finally {
@@ -25,13 +23,10 @@ export const usePostsStore = defineStore('posts', () => {
     isLoading.value = true
     error.value = null
     try {
-      const res = await fetch('/api/posts', {
+      const data = await $fetch<{ post: Post }>('/api/posts', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content, imageUrl }),
       })
-      if (!res.ok) throw new Error('投稿の作成に失敗しました')
-      const data = await res.json()
       posts.value.unshift(data.post)
       return data.post
     } catch (e) {
@@ -53,17 +48,12 @@ export const usePostsStore = defineStore('posts', () => {
     }
 
     try {
-      const res = await fetch(`/api/posts/${postId}/like`, {
-        method: 'POST',
-      })
-      if (!res.ok) {
-        if (post) {
-          post.likes = originalLikes
-          post.liked = originalLiked
-        }
-        throw new Error('いいねの処理に失敗しました')
-      }
+      await $fetch(`/api/posts/${postId}/like`, { method: 'POST' })
     } catch (e) {
+      if (post) {
+        post.likes = originalLikes
+        post.liked = originalLiked
+      }
       error.value = e instanceof Error ? e.message : '不明なエラー'
       throw e
     }
@@ -80,17 +70,12 @@ export const usePostsStore = defineStore('posts', () => {
     }
 
     try {
-      const res = await fetch(`/api/posts/${postId}/repost`, {
-        method: 'POST',
-      })
-      if (!res.ok) {
-        if (post) {
-          post.reposts = originalReposts
-          post.reposted = originalReposted
-        }
-        throw new Error('リポストの処理に失敗しました')
-      }
+      await $fetch(`/api/posts/${postId}/repost`, { method: 'POST' })
     } catch (e) {
+      if (post) {
+        post.reposts = originalReposts
+        post.reposted = originalReposted
+      }
       error.value = e instanceof Error ? e.message : '不明なエラー'
       throw e
     }
@@ -100,13 +85,10 @@ export const usePostsStore = defineStore('posts', () => {
     isLoading.value = true
     error.value = null
     try {
-      const res = await fetch('/api/posts/reply', {
+      const data = await $fetch('/api/posts/reply', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ parentId, content }),
       })
-      if (!res.ok) throw new Error('返信の作成に失敗しました')
-      const data = await res.json()
       posts.value.unshift(data.post)
       return data.post
     } catch (e) {
@@ -121,13 +103,10 @@ export const usePostsStore = defineStore('posts', () => {
     isLoading.value = true
     error.value = null
     try {
-      const res = await fetch('/api/posts/quote', {
+      const data = await $fetch('/api/posts/quote', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ quoteOf, content }),
       })
-      if (!res.ok) throw new Error('引用ポストの作成に失敗しました')
-      const data = await res.json()
       posts.value.unshift(data.post)
       return data.post
     } catch (e) {

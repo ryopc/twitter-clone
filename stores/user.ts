@@ -17,16 +17,14 @@ export const useUserStore = defineStore('user', () => {
   const login = async (email: string, password: string) => {
     isLoading.value = true
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await $fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       })
-      if (!res.ok) throw new Error('ログインに失敗しました')
-      const data = await res.json()
-      setUser(data.user)
-      setToken(data.token)
-      return data
+      setUser(res.user)
+      setToken(res.token)
+      return res
     } finally {
       isLoading.value = false
     }
@@ -40,16 +38,14 @@ export const useUserStore = defineStore('user', () => {
   }) => {
     isLoading.value = true
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await $fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-      if (!res.ok) throw new Error('登録に失敗しました')
-      const data = await res.json()
-      setUser(data.user)
-      setToken(data.token)
-      return data
+      setUser(res.user)
+      setToken(res.token)
+      return res
     } finally {
       isLoading.value = false
     }
@@ -61,26 +57,21 @@ export const useUserStore = defineStore('user', () => {
   }
 
   const fetchMe = async () => {
-    const res = await fetch('/api/auth/me')
-    if (!res.ok) return null
-    const data = await res.json()
-    setUser(data.user)
-    return data.user
+    const res = await $fetch('/api/auth/me')
+    setUser(res.user)
+    return res.user
   }
 
   const toggleFollow = async (targetUsername: string) => {
     if (!user.value || !token.value) throw new Error('未認証です')
 
-    const res = await fetch(`/api/users/${targetUsername}/follow`, {
+    const res = await $fetch(`/api/users/${targetUsername}/follow`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${token.value}`,
       },
     })
-    if (!res.ok) throw new Error('フォロー処理に失敗しました')
-    const data = await res.json()
-    return data.following
+    return res.following
   }
 
   const fetchFollowStatus = async (targetUsername: string): Promise<FollowStatus> => {
@@ -88,19 +79,15 @@ export const useUserStore = defineStore('user', () => {
       return { following: false, followersCount: 0, followingCount: 0 }
     }
 
-    const res = await fetch(`/api/users/${targetUsername}`, {
+    const res = await $fetch(`/api/users/${targetUsername}`, {
       headers: {
         Authorization: `Bearer ${token.value}`,
       },
     })
-    if (!res.ok) {
-      return { following: false, followersCount: 0, followingCount: 0 }
-    }
-    const data = await res.json()
     return {
-      following: data.following || false,
-      followersCount: data.followersCount || 0,
-      followingCount: data.followingCount || 0,
+      following: res.following || false,
+      followersCount: res.followersCount || 0,
+      followingCount: res.followingCount || 0,
     }
   }
 

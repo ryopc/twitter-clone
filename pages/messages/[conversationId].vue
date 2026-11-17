@@ -1,27 +1,27 @@
 <template>
-  <div class="max-w-screen-lg mx-auto py-6 px-4 sm:px-6 lg:px-8">
-    <nav class="flex items-center justify-between mb-6">
-      <NuxtLink to="/messages" class="flex items-center gap-2 text-text-muted hover:text-text transition-colors">
-        <UIcon name="heroicons:arrow-left" size="16" />
-        <span>メッセージ一覧</span>
+  <div class="max-w-3xl mx-auto py-6 px-6 sm:px-8 lg:px-12 h-screen flex flex-col relative z-10">
+    <nav class="flex items-center gap-4 mb-6">
+      <NuxtLink to="/messages" class="text-text-muted hover:text-text transition-colors font-medium">
+        <UIcon name="heroicons:arrow-left" size="18" />
+        <span class="ml-1">メッセージ一覧</span>
       </NuxtLink>
-
-      <div class="flex items-center gap-4">
-        <NuxtLink to="/" class="text-text-muted hover:text-text transition-colors">ホーム</NuxtLink>
-        <UButton label="ログアウト" size="sm" @click="handleLogout" variant="outline" />
-      </div>
     </nav>
 
-    <div v-if="conversation" class="flex flex-col h-[600px]">
-      <!-- ヘッダー -->
-      <div class="flex items-center gap-3 mb-6">
-        <div class="flex items-center gap-2">
+    <div v-if="conversation" class="flex-1 flex flex-col">
+      <!-- Header -->
+      <div class="flex items-center gap-4 mb-8 pb-4 border-b border-border">
+        <div class="relative flex-shrink-0">
           <UAvatar
             v-for="participant in conversation.participants"
             :key="participant.id"
-            :size="32"
+            :size="40"
             :src="participant.avatar"
             rounded="full"
+            :class="[
+              participant.id !== userStore.user?.id
+                ? 'ring-2 ring-brand ring-offset-2 ring-offset-surface'
+                : 'opacity-50',
+            ]"
           />
         </div>
         <div>
@@ -31,18 +31,16 @@
               .map((p) => p.displayName)
               .join(', ') }}
           </h3>
-          <p class="text-xs text-text-muted">
-            {{ conversation.participants.length }} 人の会話
-          </p>
+          <p class="text-xs text-text-muted">{{ conversation.participants.length }} 人の会話</p>
         </div>
       </div>
 
-      <!-- メッセージ一覧 -->
+      <!-- Messages -->
       <div
         ref="messagesContainer"
-        class="flex-1 overflow-y-auto border border-border rounded-lg p-4 space-y-4 bg-surface"
+        class="flex-1 overflow-y-auto p-4 space-y-6 bg-surface scroll-smooth"
       >
-        <div v-if="messageStore.messages.length === 0" class="flex justify-center py-12 text-text-muted">
+        <div v-if="messageStore.messages.length === 0" class="flex justify-center py-20 text-text-muted">
           メッセージがまだありません。
         </div>
 
@@ -50,44 +48,51 @@
           v-for="message in messageStore.messages"
           :key="message.id"
           :class="[
-            'max-w-[80%] p-3 rounded-2xl break-words',
+            'max-w-[80%] p-4 rounded-2xl break-words shadow-sm',
             message.senderId === userStore.user?.id
-              ? 'ml-auto bg-brand text-text rounded-tr-none'
-              : 'mr-auto bg-surface-dark text-text rounded-tl-none',
+              ? 'ml-auto bg-gradient-brand text-white rounded-tr-none'
+              : 'mr-auto bg-surface-elevated text-text rounded-tl-none border border-border',
           ]"
         >
-          <p class="text-sm">{{ message.content }}</p>
+          <p class="text-sm leading-relaxed">{{ message.content }}</p>
           <p class="text-[10px] text-text-muted mt-1">
             {{ message.sender.displayName }} · {{ relativeTime(message.createdAt) }}
           </p>
         </div>
       </div>
 
-      <!-- メッセージ入力 -->
-      <div class="mt-4 flex gap-2 border-t border-border pt-4">
-        <UInput
-          v-model="newMessage"
-          placeholder="メッセージを入力..."
-          class="flex-1"
-          @keyup.enter="sendMessage"
-        />
-        <UButton
-          :disabled="!newMessage.trim() || messageStore.isLoading"
-          label="送信"
-          color="brand"
-          size="sm"
-          @click="sendMessage"
-        />
+      <!-- Input -->
+      <div class="mt-6 pt-6 border-t border-border">
+        <div class="card-glass p-3">
+          <div class="flex items-center gap-3">
+            <UInput
+              v-model="newMessage"
+              placeholder="メッセージを入力..."
+              class="input-field bg-transparent border-none focus-visible:ring-0 focus-visible:border-transparent pl-0 flex-1"
+              @keyup.enter="sendMessage"
+            />
+            <button
+              :disabled="!newMessage.trim() || messageStore.isLoading"
+              @click="sendMessage"
+              class="w-12 h-12 rounded-xl bg-brand flex items-center justify-center text-white hover:bg-brand-dark transition-colors disabled:opacity-50"
+            >
+              <UIcon name="heroicons:paper-airplane" size="18" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div v-else class="flex flex-col items-center justify-center h-[600px] text-text-muted">
-      会話を選択してください。
+    <div v-else class="flex flex-col items-center justify-center h-full text-text-muted">
+      <p class="text-lg">会話を選択してください。</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from '~/stores/user'
+import { useMessageStore } from '~/stores/message'
+
 const route = useRoute()
 const conversationId = route.params.conversationId as string
 
@@ -110,7 +115,6 @@ const relativeTime = (ts: number) => {
 const loadConversation = async () => {
   const data = await messageStore.fetchConversation(conversationId)
   conversation.value = data
-  // 自動スクロール
   nextTick(() => {
     if (messagesContainer.value) {
       messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight || 0
@@ -127,12 +131,6 @@ const sendMessage = async () => {
       messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight || 0
     }
   })
-}
-
-const handleLogout = async () => {
-  await fetch('/api/auth/logout', { method: 'POST' })
-  userStore.logout()
-  await navigateTo('/login')
 }
 
 loadConversation()
