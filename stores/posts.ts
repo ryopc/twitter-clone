@@ -43,13 +43,12 @@ export const usePostsStore = defineStore('posts', () => {
   }
 
   const toggleLike = async (postId: string) => {
-    // 楽観的更新
     const post = posts.value.find((p) => p.id === postId)
     const originalLikes = post?.likes
     const originalLiked = post?.liked
 
     if (post) {
-      post.likes = (post.liked ? post.likes - 1 : post.likes + 1)
+      post.likes = post.liked ? post.likes - 1 : post.likes + 1
       post.liked = !post.liked
     }
 
@@ -58,7 +57,6 @@ export const usePostsStore = defineStore('posts', () => {
         method: 'POST',
       })
       if (!res.ok) {
-        // ロールバック
         if (post) {
           post.likes = originalLikes
           post.liked = originalLiked
@@ -68,6 +66,75 @@ export const usePostsStore = defineStore('posts', () => {
     } catch (e) {
       error.value = e instanceof Error ? e.message : '不明なエラー'
       throw e
+    }
+  }
+
+  const toggleRepost = async (postId: string) => {
+    const post = posts.value.find((p) => p.id === postId)
+    const originalReposts = post?.reposts
+    const originalReposted = post?.reposted
+
+    if (post) {
+      post.reposts = post.reposted ? post.reposts - 1 : post.reposts + 1
+      post.reposted = !post.reposted
+    }
+
+    try {
+      const res = await fetch(`/api/posts/${postId}/repost`, {
+        method: 'POST',
+      })
+      if (!res.ok) {
+        if (post) {
+          post.reposts = originalReposts
+          post.reposted = originalReposted
+        }
+        throw new Error('リポストの処理に失敗しました')
+      }
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : '不明なエラー'
+      throw e
+    }
+  }
+
+  const replyToPost = async (parentId: string, content: string) => {
+    isLoading.value = true
+    error.value = null
+    try {
+      const res = await fetch('/api/posts/reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ parentId, content }),
+      })
+      if (!res.ok) throw new Error('返信の作成に失敗しました')
+      const data = await res.json()
+      posts.value.unshift(data.post)
+      return data.post
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : '不明なエラー'
+      throw e
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const createQuotePost = async (quoteOf: string, content: string) => {
+    isLoading.value = true
+    error.value = null
+    try {
+      const res = await fetch('/api/posts/quote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quoteOf, content }),
+      })
+      if (!res.ok) throw new Error('引用ポストの作成に失敗しました')
+      const data = await res.json()
+      posts.value.unshift(data.post)
+      return data.post
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : '不明なエラー'
+      throw e
+    } finally {
+      isLoading.value = false
     }
   }
 
@@ -86,6 +153,9 @@ export const usePostsStore = defineStore('posts', () => {
     fetchPosts,
     createPost,
     toggleLike,
+    toggleRepost,
+    replyToPost,
+    createQuotePost,
     setPosts,
     addPost,
   }

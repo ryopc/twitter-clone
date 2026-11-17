@@ -1,6 +1,76 @@
 {
   "posts": [
     {
+      "id": "p_1794897549209",
+      "user": {
+        "id": "u_1794897517755",
+        "displayName": "テストユーザー",
+        "username": "testuser",
+        "avatar": "https://ui-avatars.com/api/?name=%E3%83%86%E3%82%B9%E3%83%88%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC&background=6366f1&color=fff",
+        "bio": null,
+        "headerImage": null,
+        "createdAt": 1794897517755
+      },
+      "content": "引用コメントテスト",
+      "imageUrl": null,
+      "createdAt": 1794897549209,
+      "likes": 0,
+      "liked": false,
+      "reposts": 0,
+      "reposted": false,
+      "repostedBy": [],
+      "replies": 0,
+      "replyTo": null,
+      "quoteOf": "p1",
+      "quotedBy": []
+    },
+    {
+      "id": "p_1794897549160",
+      "user": {
+        "id": "u_1794897517755",
+        "displayName": "テストユーザー",
+        "username": "testuser",
+        "avatar": "https://ui-avatars.com/api/?name=%E3%83%86%E3%82%B9%E3%83%88%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC&background=6366f1&color=fff",
+        "bio": null,
+        "headerImage": null,
+        "createdAt": 1794897517755
+      },
+      "content": "テスト返信です",
+      "imageUrl": null,
+      "createdAt": 1794897549160,
+      "likes": 0,
+      "liked": false,
+      "reposts": 0,
+      "reposted": false,
+      "repostedBy": [],
+      "replies": 0,
+      "replyTo": "p1",
+      "quoteOf": null,
+      "quotedBy": []
+    },
+    {
+      "id": "p_1794897549035",
+      "user": {
+        "id": "u_1794897517755",
+        "displayName": "テストユーザー",
+        "username": "testuser",
+        "avatar": "https://ui-avatars.com/api/?name=%E3%83%86%E3%82%B9%E3%83%88%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC&background=6366f1&color=fff",
+        "bio": null,
+        "headerImage": null,
+        "createdAt": 1794897517755
+      },
+      "content": "M3 動作確認テスト投稿！",
+      "imageUrl": null,
+      "createdAt": 1794897549035,
+      "likes": 0,
+      "liked": false,
+      "reposts": 0,
+      "reposted": false,
+      "replies": 0,
+      "replyTo": null,
+      "quoteOf": null
+    },
+    {
       "id": "p1",
       "user": {
         "id": "u1",
@@ -13,14 +83,23 @@
       },
       "content": "Nuxt 3 で PWA 対応の SNS クローンを作っています。商標回避を意識したオリジナルデザインです。 #Nuxt #PWA",
       "imageUrl": null,
-      "createdAt": Date.now() - 1000 * 60 * 30,
-      "likes": 12,
-      "liked": false,
-      "reposts": 1,
-      "reposted": false,
-      "replies": 3,
+      "createdAt": 1794895731359,
+      "likes": 13,
+      "liked": true,
+      "reposts": 2,
+      "reposted": true,
+      "replies": 4,
       "replyTo": null,
-      "quoteOf": null
+      "quoteOf": null,
+      "repostedBy": [
+        "u_1794897517755"
+      ],
+      "quotedBy": [
+        "u_1794897517755"
+      ],
+      "likedBy": [
+        "u_1794897517755"
+      ]
     },
     {
       "id": "p2",
@@ -35,14 +114,16 @@
       },
       "content": "おはようございます！今日も頑張りましょう。",
       "imageUrl": null,
-      "createdAt": Date.now() - 1000 * 60 * 60 * 2,
+      "createdAt": 1794890331359,
       "likes": 24,
       "liked": false,
       "reposts": 2,
       "reposted": false,
       "replies": 5,
       "replyTo": null,
-      "quoteOf": null
+      "quoteOf": null,
+      "repostedBy": [],
+      "quotedBy": []
     },
     {
       "id": "p3",
@@ -57,14 +138,16 @@
       },
       "content": "新しいプロジェクトのデザイン案がまとまりました。共有が楽しみです。",
       "imageUrl": null,
-      "createdAt": Date.now() - 1000 * 60 * 60 * 5,
+      "createdAt": 1794879531359,
       "likes": 8,
       "liked": false,
       "reposts": 0,
       "reposted": false,
       "replies": 2,
       "replyTo": null,
-      "quoteOf": null
+      "quoteOf": null,
+      "repostedBy": [],
+      "quotedBy": []
     }
   ]
 }

@@ -162,12 +162,22 @@ const toggleLike = async (postId: string) => {
   await postsStore.toggleLike(postId)
 }
 
-const reply = (postId: string) => {
-  // TODO: 返信画面へ遷移
+const reply = async (postId: string) => {
+  const content = prompt('返信内容を入力してください')
+  if (!content) return
+  await postsStore.replyToPost(postId, content)
+  await fetchPosts()
 }
 
-const toggleRepost = (postId: string) => {
-  // TODO: リポスト実装
+const toggleRepost = async (postId: string) => {
+  await postsStore.toggleRepost(postId)
+}
+
+const createQuote = async (postId: string) => {
+  const content = prompt('引用ポストのコメントを入力してください')
+  if (!content) return
+  await postsStore.createQuotePost(postId, content)
+  await fetchPosts()
 }
 
 const bookmark = (postId: string) => {

@@ -7,7 +7,8 @@
       "avatar": "https://ui-avatars.com/api/?name=Kai&background=6366f1&color=fff",
       "bio": "Nuxt 3 で PWA 対応の SNS クローンを作っています。",
       "headerImage": null,
-      "createdAt": 1700000000000
+      "createdAt": 1700000000000,
+      "password": "password123"
     },
     {
       "id": "u2",
@@ -16,7 +17,8 @@
       "avatar": "https://ui-avatars.com/api/?name=Taro&background=ec4899&color=fff",
       "bio": "おはようございます！今日も頑張りましょう。",
       "headerImage": null,
-      "createdAt": 1700000000000
+      "createdAt": 1700000000000,
+      "password": "password123"
     },
     {
       "id": "u3",
@@ -25,8 +27,42 @@
       "avatar": "https://ui-avatars.com/api/?name=Hana&background=10b981&color=fff",
       "bio": "デザイナーです。UI/UX に興味があります。",
       "headerImage": null,
-      "createdAt": 1700000000000
+      "createdAt": 1700000000000,
+      "password": "password123"
+    },
+    {
+      "id": "u_1794897517755",
+      "displayName": "テストユーザー",
+      "username": "testuser",
+      "email": "test@example.com",
+      "password": "password123",
+      "avatar": "https://ui-avatars.com/api/?name=%E3%83%86%E3%82%B9%E3%83%88%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC&background=6366f1&color=fff",
+      "bio": null,
+      "headerImage": null,
+      "createdAt": 1794897517755
     }
   ],
-  "sessions": []
+  "sessions": [
+    {
+      "token": "tok_1794897517755_zukm1gy3juk",
+      "userId": "u_1794897517755",
+      "createdAt": 1794897517755
+    },
+    {
+      "token": "tok_1794897517823_qrlzbr8een9",
+      "userId": "u_1794897517755",
+      "createdAt": 1794897517823
+    },
+    {
+      "token": "tok_1794897548865_i0nr96fd6j",
+      "userId": "u_1794897517755",
+      "createdAt": 1794897548865
+    }
+  ],
+  "follows": [
+    {
+      "followerId": "u1",
+      "followeeId": "u2"
+    }
+  ]
 }

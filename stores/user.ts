@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { User, Post } from '~/types'
+import type { User, FollowStatus } from '~/types'
 
 export const useUserStore = defineStore('user', () => {
   const user = useState<User | null>('auth-user', () => null)
@@ -68,6 +68,42 @@ export const useUserStore = defineStore('user', () => {
     return data.user
   }
 
+  const toggleFollow = async (targetUsername: string) => {
+    if (!user.value || !token.value) throw new Error('未認証です')
+
+    const res = await fetch(`/api/users/${targetUsername}/follow`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token.value}`,
+      },
+    })
+    if (!res.ok) throw new Error('フォロー処理に失敗しました')
+    const data = await res.json()
+    return data.following
+  }
+
+  const fetchFollowStatus = async (targetUsername: string): Promise<FollowStatus> => {
+    if (!token.value) {
+      return { following: false, followersCount: 0, followingCount: 0 }
+    }
+
+    const res = await fetch(`/api/users/${targetUsername}`, {
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+      },
+    })
+    if (!res.ok) {
+      return { following: false, followersCount: 0, followingCount: 0 }
+    }
+    const data = await res.json()
+    return {
+      following: data.following || false,
+      followersCount: data.followersCount || 0,
+      followingCount: data.followingCount || 0,
+    }
+  }
+
   return {
     user,
     token,
@@ -78,5 +114,7 @@ export const useUserStore = defineStore('user', () => {
     register,
     logout,
     fetchMe,
+    toggleFollow,
+    fetchFollowStatus,
   }
 })

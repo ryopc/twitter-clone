@@ -9,13 +9,14 @@ export default defineNuxtConfig({
 
   typescript: {
     strict: true,
-    shim: true,
   },
 
   css: ['@/assets/css/main.css'],
 
   ui: {
-    icons: ['heroicons', 'simple-icons'],
+    icons: {
+      dynamic: true,
+    },
   },
 
   app: {
