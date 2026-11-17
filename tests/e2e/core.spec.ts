@@ -4,8 +4,8 @@ test.describe('Skybird - Core E2E', () => {
   test('ホームページが正しく表示される', async ({ page }) => {
     await page.goto('/')
     await expect(page.locator('text=Skybird').first()).toBeVisible()
-    await expect(page.locator('text=独自の声を、')).toBeVisible()
-    await expect(page.locator('text=アカウント作成')).toBeVisible()
+    await expect(page.locator('textarea[placeholder="いま何が起きていますか？"]')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'ポスト' })).toBeVisible()
   })
 
   test('ログインページが表示される', async ({ page }) => {

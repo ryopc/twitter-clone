@@ -1,8 +1,8 @@
 <template>
   <div class="min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
-    <!-- Background decorations -->
-    <div class="fixed top-[-20%] left-[-20%] w-[700px] h-[700px] rounded-full bg-brand/25 blur-[160px] -z-10"></div>
-    <div class="fixed bottom-[-20%] right-[-20%] w-[600px] h-[600px] rounded-full bg-accent/15 blur-[160px] -z-10"></div>
+    <!-- Background decorations (night sky) -->
+    <div class="fixed top-[-20%] left-[-20%] w-[700px] h-[700px] rounded-full bg-brand/10 blur-[200px] -z-10"></div>
+    <div class="fixed bottom-[-20%] right-[-20%] w-[600px] h-[600px] rounded-full bg-accent/10 blur-[200px] -z-10"></div>
 
     <!-- Hero branding on left -->
     <div class="hidden md:flex flex-col items-start justify-center h-full w-1/3 pr-20">
