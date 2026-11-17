@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand: 232 80% 60%;
+    --brand-dark: 232 70% 45%;
+    --surface: 0 0% 100%;
+    --surface-dark: 220 15% 8%;
+    --text: 220 15% 10%;
+    --text-muted: 220 10% 45%;
+  }
+
+  [data-color-scheme='dark'],
+  .dark {
+    --brand: 232 80% 70%;
+    --brand-dark: 232 70% 55%;
+    --surface: 220 15% 8%;
+    --surface-dark: 220 20% 6%;
+    --text: 0 0% 95%;
+    --text-muted: 220 10% 55%;
+  }
+}
+
+@layer utilities {
+  .text-brand {
+    color: hsl(var(--brand));
+  }
+  .bg-brand {
+    background-color: hsl(var(--brand));
+  }
+  .hover\:bg-brand-dark:hover {
+    background-color: hsl(var(--brand-dark));
+  }
+}

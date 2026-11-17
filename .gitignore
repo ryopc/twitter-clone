@@ -1,0 +1,22 @@
+# Nuxt ビルド生成物・キャッシュ
+.nuxt
+.output
+.nitro
+.cache
+dist
+
+# 依存パッケージ・ログ
+node_modules
+*.log
+
+# 環境変数（APIキーなどの漏洩防止）
+.env
+.env.*
+!.env.example
+
+# macOS システムファイル
+.DS_Store
+
+# エディタ設定（個人設定を共有したくない場合）
+.vscode/*
+!.vscode/extensions.json

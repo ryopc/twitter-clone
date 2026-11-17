@@ -1,0 +1,70 @@
+{
+  "posts": [
+    {
+      "id": "p1",
+      "user": {
+        "id": "u1",
+        "displayName": "藍井 カイ",
+        "username": "kai_dev",
+        "avatar": "https://ui-avatars.com/api/?name=Kai&background=6366f1&color=fff",
+        "bio": "Nuxt 3 で PWA 対応の SNS クローンを作っています。",
+        "headerImage": null,
+        "createdAt": 1700000000000
+      },
+      "content": "Nuxt 3 で PWA 対応の SNS クローンを作っています。商標回避を意識したオリジナルデザインです。 #Nuxt #PWA",
+      "imageUrl": null,
+      "createdAt": Date.now() - 1000 * 60 * 30,
+      "likes": 12,
+      "liked": false,
+      "reposts": 1,
+      "reposted": false,
+      "replies": 3,
+      "replyTo": null,
+      "quoteOf": null
+    },
+    {
+      "id": "p2",
+      "user": {
+        "id": "u2",
+        "displayName": "山田 タロウ",
+        "username": "taro_dev",
+        "avatar": "https://ui-avatars.com/api/?name=Taro&background=ec4899&color=fff",
+        "bio": "おはようございます！今日も頑張りましょう。",
+        "headerImage": null,
+        "createdAt": 1700000000000
+      },
+      "content": "おはようございます！今日も頑張りましょう。",
+      "imageUrl": null,
+      "createdAt": Date.now() - 1000 * 60 * 60 * 2,
+      "likes": 24,
+      "liked": false,
+      "reposts": 2,
+      "reposted": false,
+      "replies": 5,
+      "replyTo": null,
+      "quoteOf": null
+    },
+    {
+      "id": "p3",
+      "user": {
+        "id": "u3",
+        "displayName": "佐藤 花子",
+        "username": "sato_design",
+        "avatar": "https://ui-avatars.com/api/?name=Hana&background=10b981&color=fff",
+        "bio": "デザイナーです。UI/UX に興味があります。",
+        "headerImage": null,
+        "createdAt": 1700000000000
+      },
+      "content": "新しいプロジェクトのデザイン案がまとまりました。共有が楽しみです。",
+      "imageUrl": null,
+      "createdAt": Date.now() - 1000 * 60 * 60 * 5,
+      "likes": 8,
+      "liked": false,
+      "reposts": 0,
+      "reposted": false,
+      "replies": 2,
+      "replyTo": null,
+      "quoteOf": null
+    }
+  ]
+}

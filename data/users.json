@@ -1,0 +1,32 @@
+{
+  "users": [
+    {
+      "id": "u1",
+      "displayName": "藍井 カイ",
+      "username": "kai_dev",
+      "avatar": "https://ui-avatars.com/api/?name=Kai&background=6366f1&color=fff",
+      "bio": "Nuxt 3 で PWA 対応の SNS クローンを作っています。",
+      "headerImage": null,
+      "createdAt": 1700000000000
+    },
+    {
+      "id": "u2",
+      "displayName": "山田 タロウ",
+      "username": "taro_dev",
+      "avatar": "https://ui-avatars.com/api/?name=Taro&background=ec4899&color=fff",
+      "bio": "おはようございます！今日も頑張りましょう。",
+      "headerImage": null,
+      "createdAt": 1700000000000
+    },
+    {
+      "id": "u3",
+      "displayName": "佐藤 花子",
+      "username": "sato_design",
+      "avatar": "https://ui-avatars.com/api/?name=Hana&background=10b981&color=fff",
+      "bio": "デザイナーです。UI/UX に興味があります。",
+      "headerImage": null,
+      "createdAt": 1700000000000
+    }
+  ],
+  "sessions": []
+}
