@@ -1,41 +1,36 @@
 <template>
-  <div class="min-h-screen bg-surface text-text transition-colors duration-300 relative overflow-hidden">
-    <!-- Decorative night-sky blobs -->
-    <div class="fixed top-0 left-0 w-full h-[300px] bg-brand/10 -z-10 blur-[120px]"></div>
-    <div class="fixed bottom-0 right-0 w-[600px] h-[600px] rounded-full bg-brand/10 blur-[160px] -z-10"></div>
-
-    <div class="max-w-3xl mx-auto pt-20 pb-24 px-6 sm:px-8 relative z-10">
+  <div class="messages-page min-h-[calc(100vh-4rem)] bg-surface relative">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-4">
       <!-- Back -->
-      <div class="flex items-center gap-3 mb-8">
+      <div class="flex items-center gap-3 mb-6">
         <NuxtLink to="/" class="text-text-muted hover:text-brand transition-colors">
           <UIcon name="heroicons:arrow-left" size="18" />
           <span class="ml-1.5 text-sm font-medium">ホームに戻る</span>
         </NuxtLink>
       </div>
 
-      <div class="flex items-center justify-between mb-8">
-        <div class="section-header">
-          <h2>メッセージ</h2>
-        </div>
+      <div class="section-header mb-8">
+        <h2>メッセージ</h2>
       </div>
 
       <div v-if="messageStore.isLoading" class="flex justify-center py-20">
-        <div class="w-8 h-8 rounded-full border-3 border-brand border-t-transparent animate-spin" />
+        <div class="skeleton-text w-48 mb-2" />
+        <div class="skeleton-text w-64" />
       </div>
 
-      <div v-else-if="messageStore.conversations.length === 0" class="text-center py-24">
-        <div class="w-16 h-16 rounded-full bg-surface-card/50 flex items-center justify-center mx-auto mb-6 text-text-muted">
-          <UIcon name="heroicons:chat-bubble-oval-left" size="32" />
+      <div v-else-if="messageStore.conversations.length === 0" class="text-center py-24 fade-in">
+        <div class="w-20 h-20 rounded-full bg-surface-card/50 flex items-center justify-center mx-auto mb-6 text-text-muted">
+          <UIcon name="heroicons:chat-bubble-oval-left" size="40" />
         </div>
         <h3 class="text-lg font-bold text-text mb-2">メッセージがまだありません</h3>
         <p class="text-text-muted">新しい会話を始めましょう。</p>
       </div>
 
-      <div v-else class="space-y-1">
+      <div v-else class="space-y-2 fade-in">
         <div
           v-for="conversation in messageStore.conversations"
           :key="conversation.id"
-          class="card-glass p-5 hover:bg-surface-elevated transition-colors cursor-pointer border border-transparent hover:border-border"
+          class="card-glass p-5 hover:bg-surface-elevated transition-colors cursor-pointer border border-transparent hover:border-surface-border"
           @click="selectConversation(conversation)"
         >
           <div class="flex items-center gap-4">

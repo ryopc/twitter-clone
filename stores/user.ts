@@ -57,7 +57,9 @@ export const useUserStore = defineStore('user', () => {
   }
 
   const fetchMe = async () => {
-    const res = await $fetch('/api/auth/me')
+    const res = await $fetch('/api/auth/me', {
+      headers: token.value ? { Authorization: `Bearer ${token.value}` } : {},
+    })
     setUser(res.user)
     return res.user
   }
