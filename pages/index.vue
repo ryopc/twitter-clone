@@ -2,13 +2,13 @@
   <div class="home-page min-h-[calc(100vh-4rem)] bg-surface relative">
     <!-- Compose Box -->
     <div class="compose-section max-w-3xl mx-auto px-4 sm:px-6 py-6">
-      <div class="tweet-compose reveal-item reveal-delay-1">
+      <div class="tweet-compose reveal-item reveal-delay-1 hover-card">
         <div class="flex gap-3 mb-4">
           <UAvatar
             :size="48"
             :src="userStore.user?.avatar || '/icons/icon-192x192.png'"
             rounded="full"
-            class="flex-shrink-0 border border-surface-border"
+            class="flex-shrink-0 border border-surface-border touch-target"
           />
           <div class="flex-1 min-w-0">
             <div class="flex items-baseline gap-2 mb-2">
@@ -21,6 +21,31 @@
               class="textarea-field"
               rows="3"
             />
+            <!-- Image preview -->
+            <div v-if="composeImage" class="mt-3 relative group">
+              <img :src="composeImage" alt="プレビュー" class="w-full h-48 object-cover rounded-xl border border-surface-border" />
+              <button
+                @click="removeComposeImage"
+                class="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1.5 hover:bg-black/80 transition-colors touch-target"
+                aria-label="画像を削除"
+              >
+                <UIcon name="heroicons:x-mark" size="16" />
+              </button>
+            </div>
+            <!-- Image attach button -->
+            <div class="mt-2 flex items-center gap-2">
+              <label class="cursor-pointer flex items-center gap-1.5 text-xs text-brand hover:text-brand-glow transition-colors touch-target" @click="openImagePicker">
+                <UIcon name="heroicons:image" size="14" />
+                <span>画像を追加</span>
+              </label>
+              <input
+                ref="imageInput"
+                type="file"
+                accept="image/*"
+                class="hidden"
+                @change="handleImageSelect"
+              />
+            </div>
           </div>
         </div>
         <div class="flex items-center justify-between">
@@ -31,8 +56,8 @@
             </span>
           </div>
           <button
-            :disabled="!composeText.trim() || isLoading || !isAuthenticated.value"
-            class="btn-brand text-sm px-6 py-2.5"
+            :disabled="!composeText.trim() && !composeImage || isLoading || !isAuthenticated.value"
+            class="btn-brand text-sm px-6 py-2.5 touch-target"
             @click="createPost"
           >
             ポスト
@@ -121,13 +146,19 @@
 <script setup lang="ts">
 import { useUserStore } from '~/stores/user'
 import { usePostsStore } from '~/stores/posts'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useAppToast } from '~/composables/useAppToast'
+import { useRelativeTime } from '~/composables/useRelativeTime'
 
 const userStore = useUserStore()
 const postsStore = usePostsStore()
+const { success, error } = useAppToast()
+const { relativeTime } = useRelativeTime()
 
 const composeText = useState('compose-text', () => '')
 const isLoading = useState('compose-loading', () => false)
+const composeImage = useState('compose-image', () => '')
+const imageInput = ref<HTMLInputElement | null>(null)
 
 const isAuthenticated = computed(() => !!userStore.token)
 
@@ -135,15 +166,39 @@ onMounted(() => {
   postsStore.fetchPosts()
 })
 
+const openImagePicker = () => {
+  imageInput.value?.click()
+}
+
+const handleImageSelect = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+  if (!file.type.startsWith('image/')) {
+    error('無効なファイル', '画像ファイルを選択してください')
+    return
+  }
+  composeImage.value = URL.createObjectURL(file)
+}
+
+const removeComposeImage = () => {
+  if (composeImage.value) {
+    URL.revokeObjectURL(composeImage.value)
+  }
+  composeImage.value = ''
+}
+
 const createPost = async () => {
-  if (!composeText.trim()) return
+  if (!composeText.trim() && !composeImage.value) return
   if (!isAuthenticated.value) return
   isLoading.value = true
   try {
-    await postsStore.createPost(composeText.trim())
+    await postsStore.createPost(composeText.trim(), composeImage.value || undefined)
     composeText.value = ''
+    removeComposeImage()
+    success('ポストを投稿しました')
   } catch (e) {
-    alert('ポストに失敗しました')
+    error('投稿に失敗しました', e?.message || 'もう一度お試しください')
   } finally {
     isLoading.value = false
   }
@@ -162,13 +217,5 @@ const replyToPost = async (postId: string) => {
   if (content) {
     await postsStore.replyToPost(postId, content)
   }
-}
-
-const relativeTime = (ts: number) => {
-  const sec = Math.floor((Date.now() - ts) / 1000)
-  if (sec < 60) return 'たった今'
-  if (sec < 3600) return `${Math.floor(sec / 60)}分前`
-  if (sec < 86400) return `${Math.floor(sec / 3600)}時間前`
-  return `${Math.floor(sec / 86400)}日前`
 }
 </script>

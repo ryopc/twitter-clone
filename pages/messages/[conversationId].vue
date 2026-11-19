@@ -1,95 +1,99 @@
 <template>
-  <div class="min-h-screen bg-surface text-text transition-colors duration-300 relative overflow-hidden flex flex-col">
-    <!-- Decorative night-sky blobs -->
-    <div class="fixed top-0 left-0 w-full h-[200px] bg-brand/10 -z-10 blur-[120px]"></div>
+  <div class="message-thread-page min-h-[calc(100vh-4rem)] bg-surface relative flex flex-col">
+    <!-- Back -->
+    <div class="flex items-center gap-3 mb-6 px-4 sm:px-6">
+      <NuxtLink to="/messages" class="text-text-muted hover:text-brand transition-colors touch-target">
+        <UIcon name="heroicons:arrow-left" size="18" />
+        <span class="ml-1.5 text-sm font-medium">メッセージに戻る</span>
+      </NuxtLink>
+    </div>
 
-    <div class="max-w-3xl mx-auto pt-20 pb-24 px-6 sm:px-8 lg:px-12 relative z-10 flex-1 flex flex-col">
-      <!-- Back -->
-      <div class="flex items-center gap-3 mb-6">
-        <NuxtLink to="/messages" class="text-text-muted hover:text-brand transition-colors">
-          <UIcon name="heroicons:arrow-left" size="18" />
-          <span class="ml-1.5 text-sm font-medium">メッセージ一覧</span>
-        </NuxtLink>
+    <div v-if="isLoading" class="flex-1 flex justify-center items-center">
+      <div class="skeleton-text w-48 mb-2" />
+      <div class="skeleton-text w-64" />
+    </div>
+
+    <div v-else-if="error" class="text-center py-20 text-destructive px-4">
+      <p>{{ error }}</p>
+      <NuxtLink to="/messages" class="text-brand font-medium hover:underline mt-4 inline-block touch-target">一覧に戻る</NuxtLink>
+    </div>
+
+    <div v-else-if="conversation" class="flex-1 flex flex-col max-w-3xl mx-auto px-4 sm:px-6">
+      <!-- Conversation header -->
+      <div class="mb-6">
+        <h2 class="text-lg font-bold text-text mb-2">
+          {{ conversation.participants
+            .filter((p: any) => p.id !== userStore.user?.id)
+            .map((p: any) => p.displayName)
+            .join(', ') }}
+        </h2>
+        <p class="text-xs text-text-muted">
+          {{ conversation.participants.length }} 人の会話
+        </p>
       </div>
 
-      <div v-if="conversation" class="flex-1 flex flex-col">
-        <!-- Header -->
-        <div class="flex items-center gap-4 mb-8 pb-4 border-b border-border">
-          <div class="relative flex-shrink-0">
-            <UAvatar
-              v-for="participant in conversation.participants"
-              :key="participant.id"
-              :size="40"
-              :src="participant.avatar"
-              rounded="full"
-              :class="[
-                participant.id !== userStore.user?.id
-                  ? 'ring-2 ring-brand ring-offset-2 ring-offset-surface-card'
-                  : 'opacity-50',
-              ]"
-            />
-          </div>
-          <div>
-            <h3 class="text-lg font-bold text-text">
-              {{ conversation.participants
-                .filter((p) => p.id !== userStore.user?.id)
-                .map((p) => p.displayName)
-                .join(', ') }}
-            </h3>
-            <p class="text-xs text-text-muted">{{ conversation.participants.length }} 人の会話</p>
-          </div>
-        </div>
-
-        <!-- Messages -->
+      <!-- Messages list -->
+      <div class="flex-1 overflow-y-auto pr-2 space-y-4 pb-4" ref="messagesContainer">
         <div
-          ref="messagesContainer"
-          class="flex-1 overflow-y-auto p-4 space-y-6 bg-surface scroll-smooth no-scrollbar"
+          v-for="message in messages"
+          :key="message.id"
+          class="flex"
+          :class="[
+            message.senderId === userStore.user?.id
+              ? 'justify-end'
+              : 'justify-start'
+          ]"
         >
-          <div v-if="messageStore.messages.length === 0" class="flex justify-center py-20 text-text-muted">
-            メッセージがまだありません。
-          </div>
-
           <div
-            v-for="message in messageStore.messages"
-            :key="message.id"
+            class="max-w-[80%] px-4 py-3 rounded-2xl break-words shadow-sm"
             :class="[
-              'max-w-[80%] p-4 rounded-2xl break-words shadow-sm',
               message.senderId === userStore.user?.id
-                ? 'ml-auto bg-brand text-white rounded-tr-none'
-                : 'mr-auto bg-surface-card text-text rounded-tl-none border border-border',
+                ? 'bg-brand text-white rounded-tr-none'
+                : 'bg-surface-card text-text rounded-tl-none border border-surface-border'
             ]"
           >
             <p class="text-sm leading-relaxed">{{ message.content }}</p>
-            <p class="text-[10px] text-text-dim mt-1">
-              {{ message.sender?.displayName || 'ユーザー' }} · {{ relativeTime(message.createdAt) }}
+            <p class="text-[10px] mt-1 text-right opacity-60">
+              {{ message.senderId === userStore.user?.id
+                ? message.read
+                  ? '既読'
+                  : '未読'
+                : relativeTime(message.createdAt) }}
             </p>
           </div>
-        </div>
-
-        <!-- Input -->
-        <div class="mt-6 pt-6 border-t border-border">
-          <div class="card-glass p-3">
-            <div class="flex items-center gap-3">
-              <UInput
-                v-model="newMessage"
-                placeholder="メッセージを入力..."
-                class="input-field bg-transparent border-none focus-visible:ring-0 focus-visible:border-transparent pl-0 flex-1"
-                @keyup.enter="sendMessage"
-              />
-              <button
-                :disabled="!newMessage.trim() || messageStore.isLoading"
-                @click="sendMessage"
-                class="w-12 h-12 rounded-xl bg-brand flex items-center justify-center text-white hover:bg-brand-dark transition-colors disabled:opacity-50"
-              >
-                <UIcon name="heroicons:paper-airplane" size="18" />
-              </button>
-            </div>
+          <div
+            v-if="message.senderId !== userStore.user?.id"
+            class="flex-shrink-0 mt-1 ml-1"
+          >
+            <UAvatar :size="28" :src="message.sender.avatar" rounded="full" class="border border-surface-border" />
+          </div>
+          <div
+            v-if="message.senderId === userStore.user?.id"
+            class="flex-shrink-0 mt-1 mr-1"
+          >
+            <UAvatar :size="28" :src="userStore.user?.avatar" rounded="full" class="border border-surface-border" />
           </div>
         </div>
       </div>
 
-      <div v-else class="flex flex-col items-center justify-center h-full text-text-muted">
-        <p class="text-lg">会話を選択してください。</p>
+      <!-- Message input -->
+      <div class="card-glass p-4 border-t border-surface-border">
+        <div class="flex items-center gap-3">
+          <textarea
+            v-model="messageText"
+            placeholder="メッセージを送信..."
+            class="flex-1 textarea-field min-h-[44px] max-h-[120px] rows-1"
+            @keydown.enter.shift.prevent
+            @keydown.enter.exact="sendMessage"
+          />
+          <button
+            :disabled="!messageText.trim() || isSending"
+            class="btn-brand touch-target px-6"
+            @click="sendMessage"
+          >
+            送信
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -98,46 +102,82 @@
 <script setup lang="ts">
 import { useUserStore } from '~/stores/user'
 import { useMessageStore } from '~/stores/message'
+import { useAppToast } from '~/composables/useAppToast'
+import { useRelativeTime } from '~/composables/useRelativeTime'
+import { computed, onMounted, ref, nextTick } from 'vue'
+import { useRoute } from '#app'
+import type { Conversation, Message } from '~/types'
 
 const route = useRoute()
 const conversationId = route.params.conversationId as string
 
 const userStore = useUserStore()
 const messageStore = useMessageStore()
+const { success, error: showError } = useAppToast()
+const { relativeTime } = useRelativeTime()
 
-const conversation = useState('current-conversation', () => null as any)
-const newMessage = useState('new-dm-message', () => '')
+const isLoading = ref(false)
+const error = ref<string | null>(null)
+const isSending = ref(false)
+const conversation = ref<Conversation | null>(null)
+const messages = ref<Message[]>([])
+const messageText = useState('message-text', () => '')
+const messagesContainer = ref<HTMLDivElement | null>(null)
 
-const messagesContainer = useHTMLElement('messages-container')
+const isAuthenticated = computed(() => !!userStore.token)
 
-const relativeTime = (ts: number) => {
-  const sec = Math.floor((Date.now() - ts) / 1000)
-  if (sec < 60) return 'たった今'
-  if (sec < 3600) return `${Math.floor(sec / 60)}分前`
-  if (sec < 86400) return `${Math.floor(sec / 3600)}時間前`
-  return `${Math.floor(sec / 86400)}日前`
+onMounted(async () => {
+  await fetchConversation()
+})
+
+const fetchConversation = async () => {
+  isLoading.value = true
+  error.value = null
+  try {
+    const data = await $fetch<{ conversation: Conversation; messages: Message[] }>(
+      `/api/messages/${conversationId}`,
+      {
+        headers: userStore.token ? { Authorization: `Bearer ${userStore.token}` } : {},
+      }
+    )
+    conversation.value = data.conversation
+    messages.value = data.messages
+    await nextTick()
+    scrollToBottom()
+  } catch (e) {
+    error.value = e?.message || '会話の取得に失敗しました'
+    showError('エラー', error.value)
+  } finally {
+    isLoading.value = false
+  }
 }
 
-const loadConversation = async () => {
-  const data = await messageStore.fetchConversation(conversationId)
-  conversation.value = data
-  nextTick(() => {
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight || 0
-    }
-  })
+const scrollToBottom = () => {
+  if (messagesContainer.value) {
+    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+  }
 }
 
 const sendMessage = async () => {
-  if (!newMessage.value.trim()) return
-  await messageStore.sendMessage(conversationId, newMessage.value)
-  newMessage.value = ''
-  nextTick(() => {
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight || 0
-    }
-  })
+  if (!messageText.value.trim()) return
+  if (!isAuthenticated.value) return
+  isSending.value = true
+  try {
+    await $fetch(`/api/messages/${conversationId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(userStore.token ? { Authorization: `Bearer ${userStore.token}` } : {}),
+      },
+      body: JSON.stringify({ conversationId, content: messageText.value.trim() }),
+    })
+    messageText.value = ''
+    await fetchConversation()
+    success('メッセージを送信しました')
+  } catch (e) {
+    showError('エラー', 'メッセージの送信に失敗しました')
+  } finally {
+    isSending.value = false
+  }
 }
-
-loadConversation()
 </script>

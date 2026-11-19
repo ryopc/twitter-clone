@@ -584,6 +584,59 @@
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
   }
+
+  /* Like button heart burst */
+  @keyframes heart-burst {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.4); }
+    50% { transform: scale(0.9); }
+    75% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  .post-action.liked svg {
+    animation: heart-burst 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  /* Dark mode toggle icon morph */
+  @keyframes moon-to-sun {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+
+  @keyframes sun-to-moon {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(-180deg) scale(1.2); }
+    100% { transform: rotate(-360deg) scale(1); }
+  }
+
+  .dark-mode-animate {
+    animation: moon-to-sun 0.5s ease-out forwards;
+  }
+
+  .dark-mode-animate.reverse {
+    animation: sun-to-moon 0.5s ease-out forwards;
+  }
+
+  /* Unified card hover */
+  .hover-card {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hover-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+  }
+
+  /* Touch target minimum 44px */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 /* ============ Utilities ============ */
@@ -602,4 +655,8 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
+
+  .text-destructive { color: hsl(var(--danger)); }
+  .text-success { color: hsl(var(--success)); }
+  .text-warning { color: hsl(var(--warning)); }
 }

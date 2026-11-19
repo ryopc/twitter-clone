@@ -106,8 +106,9 @@
                   :size="36"
                   :src="userStore.user.avatar"
                   rounded="full"
-                  class="cursor-pointer border border-surface-border hover:border-brand transition-colors avatar-border"
+                  class="cursor-pointer border border-surface-border hover:border-brand transition-colors avatar-border touch-target relative"
                   :to="`/@${userStore.user.username}`"
+                  @click.stop="toggleUserMenu"
                 />
                 <UButton
                   icon="heroicons:moon"
@@ -115,7 +116,7 @@
                   variant="ghost"
                   :icon-pack="'ph'"
                   @click="toggleDarkMode"
-                  class="text-text-muted hover:text-text transition-colors w-8 h-8 rounded-full flex items-center justify-center p-0 hidden sm:block"
+                  class="text-text-muted hover:text-text transition-colors w-8 h-8 rounded-full flex items-center justify-center p-0 hidden sm:block touch-target"
                   :title="isDark ? 'ライトモード' : 'ダークモード'"
                 />
               </template>
@@ -125,6 +126,45 @@
                   <NuxtLink to="/register" class="btn-brand text-sm px-5 py-2.5 hidden sm:block">登録</NuxtLink>
                 </div>
               </template>
+            </div>
+
+            <!-- User dropdown menu -->
+            <div
+              v-if="showUserMenu"
+              class="absolute right-0 mt-2 w-48 bg-surface-card border border-surface-border rounded-xl shadow-lg z-50 fade-in"
+            >
+              <div class="py-2">
+                <NuxtLink
+                  :to="`/@${userStore.user.username}`"
+                  class="flex items-center gap-3 px-4 py-3 text-sm text-text hover:bg-surface-elevated transition-colors touch-target"
+                >
+                  <UIcon name="heroicons:user" size="18" class="text-text-muted" />
+                  <span>プロフィール</span>
+                </NuxtLink>
+                <div class="px-4 py-1 text-xs text-text-muted uppercase tracking-wider font-medium">設定</div>
+                <NuxtLink
+                  to="/settings"
+                  class="flex items-center gap-3 px-4 py-3 text-sm text-text hover:bg-surface-elevated transition-colors touch-target"
+                >
+                  <UIcon name="heroicons:cog" size="18" class="text-text-muted" />
+                  <span>アカウント設定</span>
+                </NuxtLink>
+                <NuxtLink
+                  to="/settings/appearance"
+                  class="flex items-center gap-3 px-4 py-3 text-sm text-text hover:bg-surface-elevated transition-colors touch-target"
+                >
+                  <UIcon name="heroicons:palette" size="18" class="text-text-muted" />
+                  <span>外観</span>
+                </NuxtLink>
+                <div class="border-t border-surface-border"></div>
+                <button
+                  @click="logout"
+                  class="w-full flex items-center gap-3 px-4 py-3 text-sm text-destructive hover:bg-red-500/10 transition-colors touch-target"
+                >
+                  <UIcon name="heroicons:logout" size="18" class="text-destructive" />
+                  <span>ログアウト</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -149,6 +189,9 @@
     >
       Skybird をアプリとしてインストールしませんか？
     </UNotification>
+
+    <!-- Toast notifications -->
+    <ToastContainer />
   </div>
 </template>
 
@@ -159,6 +202,7 @@ import { useNotificationStore } from '~/stores/notification'
 import { usePWA } from '~/composables/usePWA'
 import { useDarkMode } from '~/composables/useDarkMode'
 import { useRoute } from '#app'
+import ToastContainer from '~/components/ToastContainer.vue'
 
 const route = useRoute()
 const { installPrompt, isInstalled, installApp } = usePWA()
@@ -167,6 +211,20 @@ const notificationStore = useNotificationStore()
 const { isDark, toggleDarkMode } = useDarkMode()
 
 const showMobileNav = useState('mobile-nav', () => false)
+const showUserMenu = useState('user-menu', () => false)
+
+const toggleUserMenu = () => {
+  showUserMenu.value = !showUserMenu.value
+}
+
+// Close dropdown when clicking outside
+if (process.client) {
+  document.addEventListener('click', (e) => {
+    if (showUserMenu.value && showUserMenu.value) {
+      showUserMenu.value = false
+    }
+  })
+}
 
 const navItems = [
   { key: 'home', to: '/', label: 'ホーム', icon: 'heroicons:home' },
@@ -177,10 +235,6 @@ const navItems = [
 ]
 
 const isActive = (to) => route.path === to || (to !== '/' && route.path.startsWith(to))
-
-const toggleUserMenu = () => {
-  showMobileNav.value = !showMobileNav.value
-}
 
 const logout = async () => {
   await userStore.logout()
