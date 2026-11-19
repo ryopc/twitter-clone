@@ -23,8 +23,12 @@
               type="email"
               placeholder="you@example.com"
               class="input-field"
+              :class="[
+                emailError ? 'border-destructive/50 focus:border-destructive focus:ring-destructive/20' : ''
+              ]"
               required
             />
+            <p v-if="emailError" class="text-xs text-destructive mt-1">{{ emailError }}</p>
           </div>
           <div class="space-y-2">
             <label class="block text-sm font-medium text-text mb-1">パスワード</label>
@@ -33,15 +37,19 @@
               type="password"
               placeholder="••••••••"
               class="input-field"
+              :class="[
+                passwordError ? 'border-destructive/50 focus:border-destructive focus:ring-destructive/20' : ''
+              ]"
               required
             />
+            <p v-if="passwordError" class="text-xs text-destructive mt-1">{{ passwordError }}</p>
           </div>
           <button
             type="submit"
-            class="w-full btn-brand text-base py-4"
-            :disabled="userStore.isLoading"
+            class="w-full btn-brand text-base py-4 touch-target"
+            :disabled="userStore.isLoading || isSubmitting"
           >
-            ログイン
+            {{ isSubmitting ? '処理中...' : 'ログイン' }}
           </button>
         </form>
 
@@ -49,7 +57,7 @@
           アカウントをお持ちでないですか？
           <NuxtLink
             to="/register"
-            class="text-brand font-medium hover:underline transition-colors"
+            class="text-brand font-medium hover:underline transition-colors touch-target"
           >
             新規登録
           </NuxtLink>
@@ -61,18 +69,46 @@
 
 <script setup lang="ts">
 import { useUserStore } from '~/stores/user'
+import { useAppToast } from '~/composables/useAppToast'
+import { ref } from 'vue'
 
 const userStore = useUserStore()
+const { error: showError, success } = useAppToast()
 
 const email = useState('auth-email', () => '')
 const password = useState('auth-password', () => '')
+const emailError = ref<string | null>(null)
+const passwordError = ref<string | null>(null)
+const isSubmitting = ref(false)
 
 const handleSubmit = async () => {
+  emailError.value = null
+  passwordError.value = null
+
+  if (!email.value.trim()) {
+    emailError.value = 'メールアドレスを入力してください'
+    return
+  }
+  if (!password.value) {
+    passwordError.value = 'パスワードを入力してください'
+    return
+  }
+
+  isSubmitting.value = true
   try {
     await userStore.login(email, password)
+    success('ログインしました')
     await navigateTo('/')
-  } catch (e) {
-    alert(e?.message || '処理に失敗しました')
+  } catch (e: any) {
+    const message = e?.message || '処理に失敗しました'
+    showError('ログインエラー', message)
+    if (message?.includes('email') || message?.includes('メール')) {
+      emailError.value = message
+    } else if (message?.includes('password') || message?.includes('パスワード')) {
+      passwordError.value = message
+    }
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
