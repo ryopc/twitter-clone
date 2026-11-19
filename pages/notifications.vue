@@ -1,12 +1,8 @@
 <template>
-  <div class="min-h-screen bg-surface text-text transition-colors duration-300 relative overflow-hidden">
-    <!-- Decorative night-sky blobs -->
-    <div class="fixed top-0 left-0 w-full h-[300px] bg-brand/10 -z-10 blur-[120px]"></div>
-    <div class="fixed bottom-0 right-0 w-[600px] h-[600px] rounded-full bg-brand/10 blur-[160px] -z-10"></div>
-
-    <div class="max-w-3xl mx-auto pt-20 pb-24 px-6 sm:px-8 relative z-10">
+  <div class="notifications-page min-h-[calc(100vh-4rem)] bg-surface relative">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-4">
       <!-- Back -->
-      <div class="flex items-center gap-3 mb-8">
+      <div class="flex items-center gap-3 mb-6">
         <NuxtLink to="/" class="text-text-muted hover:text-brand transition-colors">
           <UIcon name="heroicons:arrow-left" size="18" />
           <span class="ml-1.5 text-sm font-medium">ホームに戻る</span>
@@ -28,40 +24,41 @@
       </div>
 
       <div v-if="notificationStore.isLoading" class="flex justify-center py-20">
-        <div class="w-8 h-8 rounded-full border-3 border-brand border-t-transparent animate-spin" />
+        <div class="skeleton-text w-48 mb-2" />
+        <div class="skeleton-text w-64" />
       </div>
 
       <div
         v-else-if="notificationStore.notifications.length === 0"
-        class="text-center py-24"
+        class="text-center py-24 fade-in"
       >
-        <div class="w-16 h-16 rounded-full bg-surface-card/50 flex items-center justify-center mx-auto mb-6 text-text-muted">
-          <UIcon name="heroicons:bell" size="32" />
+        <div class="w-20 h-20 rounded-full bg-surface-card/50 flex items-center justify-center mx-auto mb-6 text-text-muted">
+          <UIcon name="heroicons:bell" size="40" />
         </div>
         <h3 class="text-lg font-bold text-text mb-2">通知はありません</h3>
         <p class="text-text-muted">新しいアクティビティがここに表示されます。</p>
       </div>
 
-      <div v-else class="space-y-4">
+      <div v-else class="space-y-3 fade-in">
         <div
           v-for="notification in notificationStore.notifications"
           :key="notification.id"
-          class="card-glass p-5 hover:bg-surface-elevated transition-colors cursor-pointer"
-          :class="{ 'border-l-4 border-brand': !notification.read }"
+          class="card-glass p-5 hover:bg-surface-elevated transition-colors cursor-pointer border-l-2"
+          :class="{ 'border-brand': !notification.read, 'border-transparent': notification.read }"
           @click="notificationStore.markAsRead(notification.id)"
         >
           <div class="flex items-start gap-4">
-            <UAvatar :size="40" :src="notification.actor.avatar" rounded="full" class="flex-shrink-0 border border-text-dim/40" />
+            <UAvatar :size="40" :src="notification.actor.avatar" rounded="full" class="flex-shrink-0 border border-surface-border" />
             <div class="flex-1 min-w-0">
               <div class="flex items-baseline gap-2 mb-2">
                 <NuxtLink
                   :to="`/@${notification.actor.username}`"
-                  class="font-bold text-text hover:underline transition-colors"
+                  class="font-bold text-text hover:text-brand transition-colors"
                 >{{ notification.actor.displayName }}</NuxtLink>
                 <span class="text-xs text-text-muted">{{ relativeTime(notification.createdAt) }}</span>
                 <span
                   v-if="!notification.read"
-                  class="w-2 h-2 rounded-full bg-brand ml-2 animate-pulse"
+                  class="w-2.5 h-2.5 rounded-full bg-brand ml-2 animate-pulse"
                 ></span>
               </div>
               <p class="text-text leading-relaxed">{{ notification.content }}</p>

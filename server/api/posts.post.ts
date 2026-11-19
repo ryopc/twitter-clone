@@ -45,9 +45,11 @@ export default defineEventHandler(async (event) => {
     liked: false,
     reposts: 0,
     reposted: false,
+    repostedBy: [],
     replies: 0,
     replyTo: null,
     quoteOf: null,
+    quotedBy: [],
   }
 
   data.posts.unshift(newPost)

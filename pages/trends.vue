@@ -1,31 +1,28 @@
 <template>
-  <div class="min-h-screen bg-surface text-text transition-colors duration-300 relative overflow-hidden">
-    <!-- Decorative night-sky blobs -->
-    <div class="fixed top-0 left-0 w-full h-[300px] bg-brand/10 -z-10 blur-[120px]"></div>
-    <div class="fixed bottom-0 right-0 w-[600px] h-[600px] rounded-full bg-brand/10 blur-[160px] -z-10"></div>
-
-    <div class="max-w-3xl mx-auto pt-20 pb-24 px-6 sm:px-8 relative z-10">
+  <div class="trends-page min-h-[calc(100vh-4rem)] bg-surface relative">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-4">
       <!-- Back -->
-      <div class="flex items-center gap-3 mb-8">
+      <div class="flex items-center gap-3 mb-6">
         <NuxtLink to="/" class="text-text-muted hover:text-brand transition-colors">
           <UIcon name="heroicons:arrow-left" size="18" />
           <span class="ml-1.5 text-sm font-medium">ホームに戻る</span>
         </NuxtLink>
       </div>
 
-      <div class="section-header mb-10">
+      <div class="section-header mb-8">
         <h2>トレンド</h2>
       </div>
 
       <div v-if="trends.isLoading" class="flex justify-center py-20">
-        <div class="w-8 h-8 rounded-full border-3 border-brand border-t-transparent animate-spin" />
+        <div class="skeleton-text w-48 mb-2" />
+        <div class="skeleton-text w-64" />
       </div>
 
-      <div v-else-if="trends.trends.length === 0" class="text-center py-24 text-text-muted">
+      <div v-else-if="trends.trends.length === 0" class="text-center py-24 text-text-muted fade-in">
         トレンドがまだありません。
       </div>
 
-      <div v-else class="space-y-5">
+      <div v-else class="space-y-4 fade-in">
         <div
           v-for="(trend, index) in trends.trends"
           :key="trend.id"
@@ -40,7 +37,7 @@
                     ? 'bg-brand text-white shadow-lg shadow-brand/40'
                     : index === 1
                     ? 'bg-accent text-white shadow-lg shadow-accent/40'
-                    : 'bg-surface-card border border-text-dim/30 text-text-muted'
+                    : 'bg-surface-card border border-surface-border text-text-muted'
                 "
               >
                 {{ index + 1 }}
@@ -52,7 +49,7 @@
             </div>
             <NuxtLink
               :to="`/search?q=%23${trend.tag}`"
-              class="text-brand font-medium hover:underline transition-colors text-sm"
+              class="text-brand font-medium hover:text-brand-glow transition-colors text-sm"
             >
               詳細を見る
             </NuxtLink>

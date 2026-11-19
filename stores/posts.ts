@@ -1,16 +1,24 @@
 import { defineStore } from 'pinia'
 import type { Post, User } from '~/types'
+import { useUserStore } from './user'
 
 export const usePostsStore = defineStore('posts', () => {
   const posts = useState<Post[]>('posts', () => [])
   const isLoading = useState('posts-loading', () => false)
   const error = useState<string | null>('posts-error', () => null)
 
+  const authHeaders = () => {
+    const userStore = useUserStore()
+    return userStore.token ? { Authorization: `Bearer ${userStore.token}` } : {}
+  }
+
   const fetchPosts = async () => {
     isLoading.value = true
     error.value = null
     try {
-      const data = await $fetch<{ posts: Post[] }>('/api/posts')
+      const data = await $fetch<{ posts: Post[] }>('/api/posts', {
+        headers: authHeaders(),
+      })
       posts.value = (data.posts || []).sort((a, b) => b.createdAt - a.createdAt)
     } catch (e) {
       error.value = e instanceof Error ? e.message : '不明なエラー'
@@ -25,6 +33,10 @@ export const usePostsStore = defineStore('posts', () => {
     try {
       const data = await $fetch<{ post: Post }>('/api/posts', {
         method: 'POST',
+        headers: {
+          ...authHeaders(),
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ content, imageUrl }),
       })
       posts.value.unshift(data.post)
@@ -48,7 +60,14 @@ export const usePostsStore = defineStore('posts', () => {
     }
 
     try {
-      await $fetch(`/api/posts/${postId}/like`, { method: 'POST' })
+      const res = await $fetch<{ liked: boolean; likes: number }>(`/api/posts/${postId}/like`, {
+        method: 'POST',
+        headers: authHeaders(),
+      })
+      if (post) {
+        post.liked = res.liked
+        post.likes = res.likes
+      }
     } catch (e) {
       if (post) {
         post.likes = originalLikes
@@ -70,7 +89,14 @@ export const usePostsStore = defineStore('posts', () => {
     }
 
     try {
-      await $fetch(`/api/posts/${postId}/repost`, { method: 'POST' })
+      const res = await $fetch<{ reposted: boolean; reposts: number }>(`/api/posts/${postId}/repost`, {
+        method: 'POST',
+        headers: authHeaders(),
+      })
+      if (post) {
+        post.reposted = res.reposted
+        post.reposts = res.reposts
+      }
     } catch (e) {
       if (post) {
         post.reposts = originalReposts
@@ -85,8 +111,12 @@ export const usePostsStore = defineStore('posts', () => {
     isLoading.value = true
     error.value = null
     try {
-      const data = await $fetch('/api/posts/reply', {
+      const data = await $fetch<{ post: Post }>('/api/posts/reply', {
         method: 'POST',
+        headers: {
+          ...authHeaders(),
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ parentId, content }),
       })
       posts.value.unshift(data.post)
@@ -103,8 +133,12 @@ export const usePostsStore = defineStore('posts', () => {
     isLoading.value = true
     error.value = null
     try {
-      const data = await $fetch('/api/posts/quote', {
+      const data = await $fetch<{ post: Post }>('/api/posts/quote', {
         method: 'POST',
+        headers: {
+          ...authHeaders(),
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ quoteOf, content }),
       })
       posts.value.unshift(data.post)

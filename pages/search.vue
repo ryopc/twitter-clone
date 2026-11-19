@@ -1,12 +1,8 @@
 <template>
-  <div class="min-h-screen bg-surface text-text transition-colors duration-300 relative overflow-hidden">
-    <!-- Decorative night-sky blobs -->
-    <div class="fixed top-0 left-0 w-full h-[300px] bg-brand/10 -z-10 blur-[120px]"></div>
-    <div class="fixed bottom-0 right-0 w-[600px] h-[600px] rounded-full bg-brand/10 blur-[160px] -z-10"></div>
-
-    <div class="max-w-3xl mx-auto pt-20 pb-24 px-6 sm:px-8 relative z-10">
+  <div class="search-page min-h-[calc(100vh-4rem)] bg-surface relative">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-4">
       <!-- Back -->
-      <div class="flex items-center gap-3 mb-8">
+      <div class="flex items-center gap-3 mb-6">
         <NuxtLink to="/" class="text-text-muted hover:text-brand transition-colors">
           <UIcon name="heroicons:arrow-left" size="18" />
           <span class="ml-1.5 text-sm font-medium">ホームに戻る</span>
@@ -14,7 +10,7 @@
       </div>
 
       <!-- Search bar -->
-      <div class="card-glass mb-10">
+      <div class="card-glass mb-8">
         <div class="flex items-center gap-3 px-5 py-4">
           <UIcon name="heroicons:magnifying-glass" size="20" class="text-text-muted" />
           <UInput
@@ -33,7 +29,7 @@
         </div>
       </div>
 
-      <div v-if="query.trim()" class="mb-8">
+      <div v-if="query.trim()" class="mb-6">
         <p class="text-sm text-text-muted">"{{ query }}" で検索中</p>
       </div>
 
@@ -44,24 +40,25 @@
             <h2>ユーザー</h2>
           </div>
           <div v-if="searchResults.isLoading" class="flex justify-center py-12">
-            <div class="w-8 h-8 rounded-full border-3 border-brand border-t-transparent animate-spin" />
+            <div class="skeleton-text w-48 mb-2" />
+            <div class="skeleton-text w-64" />
           </div>
           <div v-else-if="searchResults.users.length === 0" class="text-center py-16 text-text-muted">
             ユーザーが見つかりません。
           </div>
-          <div v-else class="space-y-4">
+          <div v-else class="space-y-3">
             <div
               v-for="user in searchResults.users"
               :key="user.id"
               class="card-glass p-5 hover:border-brand/40 transition-colors"
             >
               <div class="flex items-center gap-4">
-                <UAvatar :size="44" :src="user.avatar" rounded="full" class="flex-shrink-0 border border-text-dim/40" />
+                <UAvatar :size="44" :src="user.avatar" rounded="full" class="flex-shrink-0 border border-surface-border" />
                 <div class="flex-1 min-w-0">
                   <div class="flex items-baseline gap-2">
                     <NuxtLink
                       :to="`/@${user.username}`"
-                      class="text-sm font-bold text-text hover:underline transition-colors"
+                      class="text-sm font-bold text-text hover:text-brand transition-colors"
                     >{{ user.displayName }}</NuxtLink>
                     <span class="text-xs text-text-muted">@{{ user.username }}</span>
                   </div>
@@ -71,8 +68,8 @@
                   :class="[
                     'px-4 py-2 rounded-full text-sm font-bold transition-colors',
                     isFollowing(user.username)
-                      ? 'bg-surface-elevated border border-text-dim/30 text-text hover:bg-surface-card'
-                      : 'btn-brand'
+                      ? 'bg-surface-elevated border border-surface-border text-text hover:bg-surface-input'
+                      : 'btn-brand text-xs px-3 py-1.5'
                   ]"
                   @click="toggleFollow(user.username)"
                 >
@@ -89,30 +86,31 @@
             <h2>投稿</h2>
           </div>
           <div v-if="searchResults.isLoading" class="flex justify-center py-12">
-            <div class="w-8 h-8 rounded-full border-3 border-brand border-t-transparent animate-spin" />
+            <div class="skeleton-text w-64 mb-2" />
+            <div class="skeleton-text w-full" />
           </div>
           <div v-else-if="searchResults.posts.length === 0" class="text-center py-16 text-text-muted">
             投稿が見つかりません。
           </div>
-          <div v-else class="space-y-6">
+          <div v-else class="space-y-4">
             <div
               v-for="post in searchResults.posts"
               :key="post.id"
-              class="card-glass p-6 hover:border-brand/40 transition-colors"
+              class="card-glass p-5 hover:border-brand/40 transition-colors"
             >
-              <div class="flex gap-4 mb-4">
-                <UAvatar :size="40" :src="post.user.avatar" rounded="full" class="flex-shrink-0 border border-text-dim/40" />
+              <div class="flex gap-3 mb-3">
+                <UAvatar :size="40" :src="post.user.avatar" rounded="full" class="flex-shrink-0 border border-surface-border" />
                 <div class="flex-1 min-w-0">
                   <div class="flex items-baseline gap-1.5">
                     <NuxtLink
                       :to="`/@${post.user.username}`"
-                      class="text-sm font-bold text-text hover:underline transition-colors"
+                      class="text-sm font-bold text-text hover:text-brand transition-colors"
                     >{{ post.user.displayName }}</NuxtLink>
                     <span class="text-xs text-text-muted">@{{ post.user.username }} · {{ relativeTime(post.createdAt) }}</span>
                   </div>
                 </div>
               </div>
-              <div class="text-lg leading-relaxed mb-5 whitespace-pre-line">{{ post.content }}</div>
+              <div class="text-sm leading-relaxed whitespace-pre-line mb-3">{{ post.content }}</div>
               <div class="post-actions">
                 <button
                   class="post-action"
@@ -146,6 +144,7 @@
 <script setup lang="ts">
 import { useUserStore } from '~/stores/user'
 import { usePostsStore } from '~/stores/posts'
+import { computed } from 'vue'
 
 const userStore = useUserStore()
 const postsStore = usePostsStore()
@@ -157,7 +156,26 @@ const searchResults = useState('search-results', () => ({
   isLoading: false,
 }))
 
-const isFollowing = (username: string) => false
+const followingCache = useState<'following-cache', Record<string, boolean>>('search-following-cache', () => {})
+
+const isFollowing = computed(() => (username: string) => {
+  return followingCache.value[username] ?? false
+})
+
+const loadFollowingStatus = async (usernames: string[]) => {
+  if (!userStore.token) return
+  await Promise.all(
+    usernames.map(async (username) => {
+      if (followingCache.value[username] !== undefined) return
+      try {
+        const status = await userStore.fetchFollowStatus(username)
+        followingCache.value = { ...followingCache.value, [username]: status.following }
+      } catch {
+        followingCache.value = { ...followingCache.value, [username]: false }
+      }
+    })
+  )
+}
 
 const search = async () => {
   if (!query.value.trim()) {
@@ -173,6 +191,7 @@ const search = async () => {
       posts: data.posts || [],
       isLoading: false,
     }
+    await loadFollowingStatus((data.users || []).map((u) => u.username))
   } catch (e) {
     console.error(e)
     searchResults.value.isLoading = false

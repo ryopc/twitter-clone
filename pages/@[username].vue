@@ -1,36 +1,45 @@
 <template>
-  <div class="min-h-screen bg-surface text-text transition-colors duration-300 relative overflow-hidden">
-    <!-- Decorative night-sky blobs -->
-    <div class="fixed top-0 left-0 w-full h-[300px] bg-brand/10 -z-10 blur-[120px]"></div>
-    <div class="fixed bottom-0 right-0 w-[600px] h-[600px] rounded-full bg-brand/10 blur-[160px] -z-10"></div>
+  <div class="profile-page min-h-[calc(100vh-4rem)] bg-surface relative">
+    <!-- Header image -->
+    <div
+      v-if="profile.user?.headerImage"
+      class="header-banner h-48 w-full relative overflow-hidden"
+      :style="{ backgroundImage: `url(${profile.user.headerImage})` }"
+    >
+      <div class="absolute inset-0 bg-black/40" />
+    </div>
+    <div v-else class="header-banner h-48 w-full bg-surface-card border-b border-surface-border relative">
+      <div class="absolute inset-0 bg-gradient-to-br from-brand/10 to-accent/10" />
+    </div>
 
-    <div class="max-w-3xl mx-auto pt-20 pb-24 px-6 sm:px-8 relative z-10">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-4">
       <!-- Back + header -->
-      <div class="flex items-center gap-3 mb-10">
+      <div class="flex items-center gap-3 mb-6">
         <NuxtLink to="/" class="text-text-muted hover:text-brand transition-colors">
           <UIcon name="heroicons:arrow-left" size="18" />
           <span class="ml-1.5 text-sm font-medium">ホームに戻る</span>
         </NuxtLink>
       </div>
 
-      <div v-if="profile.user" class="space-y-8">
+      <div v-if="profile.user" class="fade-in">
         <!-- Profile header -->
-        <div class="relative">
-          <div
-            class="w-full h-40 bg-surface-elevated rounded-2xl overflow-hidden border border-border"
-            :style="{ backgroundImage: profile.user.headerImage ? `url(${profile.user.headerImage})` : 'none' }"
-          />
-          <div class="flex items-center justify-center -mt-20">
-            <UAvatar :size="96" :src="profile.user.avatar" rounded="full" class="border-4 border-surface-card shadow-lg" />
+        <div class="relative mb-6">
+          <div class="absolute -top-16 left-6 z-20">
+            <UAvatar
+              :size="96"
+              :src="profile.user.avatar || '/icons/icon-192x192.png'"
+              rounded="full"
+              class="border-4 border-surface shadow-xl avatar-border"
+            />
           </div>
         </div>
 
-        <div class="text-center">
-          <h1 class="text-2xl font-bold text-text">{{ profile.user.displayName }}</h1>
-          <p class="text-lg text-text-muted mt-1">@{{ profile.user.username }}</p>
-          <p v-if="profile.user.bio" class="mt-3 text-text leading-relaxed max-w-md mx-auto">{{ profile.user.bio }}</p>
+        <div class="text-center mt-8">
+          <h1 class="text-3xl font-black text-text tracking-tighter">{{ profile.user.displayName }}</h1>
+          <p class="text-lg text-text-muted mt-2">@{{ profile.user.username }}</p>
+          <p v-if="profile.user.bio" class="mt-4 text-text leading-relaxed max-w-md mx-auto">{{ profile.user.bio }}</p>
 
-          <div class="flex items-center justify-center gap-5 mt-7">
+          <div class="flex items-center justify-center gap-6 mt-8 px-4">
             <div class="text-center">
               <p class="text-xl font-bold text-text">{{ profile.followersCount }}</p>
               <p class="text-sm text-text-muted">フォロワー</p>
@@ -41,13 +50,13 @@
             </div>
           </div>
 
-          <div class="flex justify-center mt-5">
+          <div class="flex justify-center mt-6">
             <template v-if="userStore.user && userStore.user.username !== profile.user.username">
               <button
                 :class="[
-                  'px-8 py-3 rounded-2xl font-bold text-base transition-all',
+                  'px-8 py-3 rounded-full font-bold text-base transition-all',
                   profile.isFollowing
-                    ? 'bg-surface-elevated border border-text-dim/30 text-text hover:bg-surface-card'
+                    ? 'bg-surface-elevated border border-surface-border text-text hover:bg-surface-input'
                     : 'btn-brand'
                 ]"
                 @click="toggleFollow"
@@ -60,33 +69,34 @@
         </div>
 
         <!-- Posts -->
-        <div class="section-header mb-6">
+        <div class="section-header mb-6 mt-12">
           <h2>投稿</h2>
         </div>
 
-        <div v-if="profile.posts.length > 0" class="space-y-6">
+        <div v-if="profile.posts.length > 0" class="space-y-4">
           <div
             v-for="post in profile.posts"
             :key="post.id"
-            class="card-glass p-6 hover:border-brand/40 transition-colors"
+            class="card-glass p-5 fade-in"
           >
-            <div class="flex gap-4 mb-4">
-              <UAvatar :size="40" :src="post.user.avatar" rounded="full" class="flex-shrink-0 border border-text-dim/40" />
+            <div class="flex gap-3 mb-3">
+              <UAvatar :size="40" :src="post.user.avatar" rounded="full" class="flex-shrink-0 border border-surface-border" />
               <div class="flex-1 min-w-0">
-                <div class="flex items-baseline gap-1.5">
+                <div class="flex items-baseline gap-1.5 mb-1">
                   <NuxtLink
                     :to="`/@${post.user.username}`"
-                    class="text-sm font-bold text-text hover:underline transition-colors"
+                    class="text-sm font-bold text-text hover:text-brand transition-colors"
                   >{{ post.user.displayName }}</NuxtLink>
                   <span class="text-xs text-text-muted">@{{ post.user.username }} · {{ relativeTime(post.createdAt) }}</span>
                 </div>
+                <div class="text-sm leading-relaxed whitespace-pre-line mb-3">{{ post.content }}</div>
               </div>
             </div>
-            <div class="text-lg leading-relaxed mb-5 whitespace-pre-line">{{ post.content }}</div>
+
             <div class="post-actions">
               <button
                 class="post-action"
-                :class="{ active: post.liked }"
+                :class="{ active: post.liked, liked: post.liked }"
                 @click="toggleLike(post.id)"
               >
                 <UIcon name="heroicons:heart" size="18" />
@@ -109,11 +119,17 @@
         </div>
 
         <div v-else class="text-center py-20">
+          <div class="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mx-auto mb-4 text-brand">
+            <UIcon name="heroicons:feather" size="32" />
+          </div>
           <p class="text-text-muted text-lg">投稿がまだありません。</p>
         </div>
       </div>
 
       <div v-else class="text-center py-32">
+        <div class="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mx-auto mb-4 text-brand">
+          <UIcon name="heroicons:user" size="32" />
+        </div>
         <p class="text-text-muted text-lg">ユーザーが見つかりません。</p>
       </div>
     </div>
@@ -123,6 +139,7 @@
 <script setup lang="ts">
 import { useUserStore } from '~/stores/user'
 import { usePostsStore } from '~/stores/posts'
+import { useRoute } from '#app'
 
 const route = useRoute()
 const username = route.params.username as string
