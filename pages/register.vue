@@ -22,8 +22,12 @@
               v-model="displayName"
               placeholder="藍井 カイ"
               class="input-field"
+              :class="[
+                errors.displayName ? 'border-destructive/50 focus:border-destructive focus:ring-destructive/20' : ''
+              ]"
               required
             />
+            <p v-if="errors.displayName" class="text-xs text-destructive mt-1">{{ errors.displayName }}</p>
           </div>
           <div class="space-y-2">
             <label class="block text-sm font-medium text-text mb-1">ユーザー名</label>
@@ -31,8 +35,12 @@
               v-model="username"
               placeholder="kai_dev"
               class="input-field"
+              :class="[
+                errors.username ? 'border-destructive/50 focus:border-destructive focus:ring-destructive/20' : ''
+              ]"
               required
             />
+            <p v-if="errors.username" class="text-xs text-destructive mt-1">{{ errors.username }}</p>
           </div>
           <div class="space-y-2">
             <label class="block text-sm font-medium text-text mb-1">メールアドレス</label>
@@ -41,8 +49,12 @@
               type="email"
               placeholder="you@example.com"
               class="input-field"
+              :class="[
+                errors.email ? 'border-destructive/50 focus:border-destructive focus:ring-destructive/20' : ''
+              ]"
               required
             />
+            <p v-if="errors.email" class="text-xs text-destructive mt-1">{{ errors.email }}</p>
           </div>
           <div class="space-y-2">
             <label class="block text-sm font-medium text-text mb-1">パスワード</label>
@@ -51,15 +63,19 @@
               type="password"
               placeholder="••••••••"
               class="input-field"
+              :class="[
+                errors.password ? 'border-destructive/50 focus:border-destructive focus:ring-destructive/20' : ''
+              ]"
               required
             />
+            <p v-if="errors.password" class="text-xs text-destructive mt-1">{{ errors.password }}</p>
           </div>
           <button
             type="submit"
-            class="w-full btn-brand text-base py-4"
-            :disabled="userStore.isLoading"
+            class="w-full btn-brand text-base py-4 touch-target"
+            :disabled="userStore.isLoading || isSubmitting"
           >
-            アカウントを作成
+            {{ isSubmitting ? '処理中...' : 'アカウントを作成' }}
           </button>
         </form>
 
@@ -67,7 +83,7 @@
           すでにアカウントをお持ちですか？
           <NuxtLink
             to="/login"
-            class="text-brand font-medium hover:underline transition-colors"
+            class="text-brand font-medium hover:underline transition-colors touch-target"
           >
             ログイン
           </NuxtLink>
@@ -79,20 +95,80 @@
 
 <script setup lang="ts">
 import { useUserStore } from '~/stores/user'
+import { useAppToast } from '~/composables/useAppToast'
+import { reactive, ref } from 'vue'
 
 const userStore = useUserStore()
+const { error: showError, success } = useAppToast()
 
 const displayName = useState('auth-displayName', () => '')
 const username = useState('auth-username', () => '')
 const email = useState('auth-email', () => '')
 const password = useState('auth-password', () => '')
+const errors = reactive({
+  displayName: null as string | null,
+  username: null as string | null,
+  email: null as string | null,
+  password: null as string | null,
+})
+const isSubmitting = ref(false)
+
+const validate = (): boolean => {
+  errors.displayName = null
+  errors.username = null
+  errors.email = null
+  errors.password = null
+
+  let valid = true
+
+  if (!displayName.value.trim()) {
+    errors.displayName = '表示名を入力してください'
+    valid = false
+  }
+  if (!username.value.trim()) {
+    errors.username = 'ユーザー名を入力してください'
+    valid = false
+  }
+  if (!email.value.trim()) {
+    errors.email = 'メールアドレスを入力してください'
+    valid = false
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+    errors.email = '有効なメールアドレスを入力してください'
+    valid = false
+  }
+  if (!password.value) {
+    errors.password = 'パスワードを入力してください'
+    valid = false
+  } else if (password.value.length < 6) {
+    errors.password = 'パスワードは6文字以上で入力してください'
+    valid = false
+  }
+
+  return valid
+}
 
 const handleSubmit = async () => {
+  if (!validate()) return
+
+  isSubmitting.value = true
   try {
     await userStore.register({ displayName, username, email, password })
+    success('アカウントを作成しました')
     await navigateTo('/')
-  } catch (e) {
-    alert(e?.message || '処理に失敗しました')
+  } catch (e: any) {
+    const message = e?.message || '処理に失敗しました'
+    showError('登録エラー', message)
+    if (message?.includes('username') || message?.includes('ユーザー名')) {
+      errors.username = message
+    } else if (message?.includes('email') || message?.includes('メール')) {
+      errors.email = message
+    } else if (message?.includes('password') || message?.includes('パスワード')) {
+      errors.password = message
+    } else if (message?.includes('displayName') || message?.includes('表示名')) {
+      errors.displayName = message
+    }
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
