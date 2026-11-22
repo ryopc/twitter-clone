@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: '未認証です' })
   }
 
-  const { quoteOf, content } = await readBody(event)
+  const { quoteOf, content, imageUrl } = await readBody(event)
 
   if (!content || content.trim().length === 0) {
     throw createError({ statusCode: 400, statusMessage: '内容を入力してください' })
@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
       createdAt: user.createdAt,
     },
     content: content.trim(),
-    imageUrl: null,
+    imageUrl: imageUrl || null,
     createdAt: Date.now(),
     likes: 0,
     liked: false,

@@ -220,7 +220,7 @@ const toggleUserMenu = () => {
 // Close dropdown when clicking outside
 if (process.client) {
   document.addEventListener('click', (e) => {
-    if (showUserMenu.value && showUserMenu.value) {
+    if (showUserMenu.value) {
       showUserMenu.value = false
     }
   })

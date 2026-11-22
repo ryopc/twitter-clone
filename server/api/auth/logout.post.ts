@@ -1,4 +1,9 @@
-import { readData, writeData } from '~/server/utils/data'
+import { readData } from '~/server/utils/data'
+import {
+  getAuthUserId,
+  persistData,
+  removeSession,
+} from '~/server/utils/session'
 
 export default defineEventHandler(async (event) => {
   const authHeader = getHeader(event, 'authorization')
@@ -8,8 +13,10 @@ export default defineEventHandler(async (event) => {
 
   const token = authHeader.slice(7)
   const data = await readData<{ users: any[]; sessions: any[] }>('users.json')
-  data.sessions = data.sessions.filter((s) => s.token !== token)
-  await writeData('users.json', data)
+
+  // セッションが無効でも正常応答を維持（現状通り）
+  removeSession(data, token)
+  await persistData('users.json', data)
 
   return { success: true }
 })
