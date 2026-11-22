@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { unref } from 'vue'
 import type { User, FollowStatus } from '~/types'
 
 export const useUserStore = defineStore('user', () => {
@@ -14,13 +15,13 @@ export const useUserStore = defineStore('user', () => {
     token.value = t
   }
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string | Ref<string>, password: string | Ref<string>) => {
     isLoading.value = true
     try {
       const res = await $fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: unref(email), password: unref(password) }),
       })
       setUser(res.user)
       setToken(res.token)
@@ -31,17 +32,22 @@ export const useUserStore = defineStore('user', () => {
   }
 
   const register = async (payload: {
-    displayName: string
-    username: string
-    email: string
-    password: string
+    displayName: string | Ref<string>
+    username: string | Ref<string>
+    email: string | Ref<string>
+    password: string | Ref<string>
   }) => {
     isLoading.value = true
     try {
       const res = await $fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          displayName: unref(payload.displayName),
+          username: unref(payload.username),
+          email: unref(payload.email),
+          password: unref(payload.password),
+        }),
       })
       setUser(res.user)
       setToken(res.token)

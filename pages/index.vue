@@ -149,6 +149,7 @@ import { usePostsStore } from '~/stores/posts'
 import { computed, onMounted, ref } from 'vue'
 import { useAppToast } from '~/composables/useAppToast'
 import { useRelativeTime } from '~/composables/useRelativeTime'
+import { navigateTo } from '#app'
 
 const userStore = useUserStore()
 const postsStore = usePostsStore()
@@ -170,7 +171,7 @@ const openImagePicker = () => {
   imageInput.value?.click()
 }
 
-const handleImageSelect = (event: Event) => {
+const handleImageSelect = async (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
   if (!file) return
@@ -178,13 +179,22 @@ const handleImageSelect = (event: Event) => {
     error('無効なファイル', '画像ファイルを選択してください')
     return
   }
-  composeImage.value = URL.createObjectURL(file)
+  if (file.size > 2 * 1024 * 1024) {
+    error('画像が大きすぎます', '2MB 以下の画像を選択してください')
+    return
+  }
+  composeImage.value = await fileToDataUrl(file)
 }
 
+const fileToDataUrl = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(new Error('画像の読み取りに失敗しました'))
+    reader.readAsDataURL(file)
+  })
+
 const removeComposeImage = () => {
-  if (composeImage.value) {
-    URL.revokeObjectURL(composeImage.value)
-  }
   composeImage.value = ''
 }
 
@@ -213,9 +223,6 @@ const toggleRepost = async (postId: string) => {
 }
 
 const replyToPost = async (postId: string) => {
-  const content = prompt('返信を入力してください')
-  if (content) {
-    await postsStore.replyToPost(postId, content)
-  }
+  navigateTo(`/posts/${postId}`)
 }
 </script>

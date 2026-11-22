@@ -1,10 +1,13 @@
 import { readData, writeData } from '~/server/utils/data'
+import {
+  findValidSession,
+  requireAuthUserId,
+} from '~/server/utils/session'
 
 export default defineEventHandler(async (event) => {
-  const authHeader = getHeader(event, 'authorization')
-  if (!authHeader?.startsWith('Bearer ')) {
-    throw createError({ statusCode: 401, statusMessage: '未認証です' })
-  }
+  const data = await readData<{ users: any[]; sessions: any[] }>('users.json')
+
+  const userId = requireAuthUserId(event, data)
 
   const { content, imageUrl } = await readBody(event)
 
@@ -12,20 +15,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: '内容を入力してください' })
   }
 
-  const token = authHeader.slice(7)
-  const { users, sessions } = await readData<{ users: any[]; sessions: any[] }>('users.json')
-
-  const session = sessions.find((s) => s.token === token)
-  if (!session) {
-    throw createError({ statusCode: 401, statusMessage: 'セッションが無効です' })
-  }
-
-  const user = users.find((u) => u.id === session.userId)
+  const user = data.users.find((u) => u.id === userId)
   if (!user) {
     throw createError({ statusCode: 404, statusMessage: 'ユーザーが見つかりません' })
   }
 
-  const data = await readData<{ posts: any[] }>('posts.json')
+  const postsData = await readData<{ posts: any[] }>('posts.json')
 
   const newPost = {
     id: `p_${Date.now()}`,
@@ -52,8 +47,8 @@ export default defineEventHandler(async (event) => {
     quotedBy: [],
   }
 
-  data.posts.unshift(newPost)
-  await writeData('posts.json', data)
+  postsData.posts.unshift(newPost)
+  await writeData('posts.json', postsData)
 
   return { post: newPost }
 })

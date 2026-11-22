@@ -1,4 +1,9 @@
 import { readData, writeData } from '~/server/utils/data'
+import {
+  appendSession,
+  persistData,
+} from '~/server/utils/session'
+import bcrypt from 'bcryptjs'
 
 export default defineEventHandler(async (event) => {
   const { displayName, username, email, password } = await readBody(event)
@@ -24,7 +29,7 @@ export default defineEventHandler(async (event) => {
     displayName,
     username,
     email,
-    password,
+    password: bcrypt.hashSync(password, 10),
     avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6366f1&color=fff`,
     bio: null,
     headerImage: null,
@@ -32,15 +37,9 @@ export default defineEventHandler(async (event) => {
   }
 
   data.users.push(newUser)
-  await writeData('users.json', data)
 
-  const token = `tok_${Date.now()}_${Math.random().toString(36).slice(2)}`
-  data.sessions.push({
-    token,
-    userId: newUser.id,
-    createdAt: Date.now(),
-  })
-  await writeData('users.json', data)
+  const token = appendSession(data, newUser.id)
+  await persistData('users.json', data)
 
   const { password: _, ...userWithoutPassword } = newUser
 

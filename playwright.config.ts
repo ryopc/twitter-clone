@@ -5,7 +5,10 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // データ層が JSON ファイルの逐次 I/O であるため、並列実行で
+  // 読み書き競合（ファイル破損・更新喪失）が発生するのを避けて
+  // 1 ワーカーで逐次実行する
+  workers: 1,
   reporter: 'html',
 
   // テスト前にサーバーを起動
